@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Industrial Excel PRO V18 Google</title>
+  <title>Dashboard Industrial Excel PRO V19 Google</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -173,7 +173,7 @@
         <h3>Hoja y estilo general</h3>
         <div class="row4">
           <div class="field"><label>Hoja a leer</label><select id="sheetSelect"></select></div>
-          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V18 Google"></div>
+          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V19 Google"></div>
           <div class="field"><label>Meta semanal (línea roja)</label><input id="weeklyTargetLine" type="number" value="700000"></div>
           <div class="field"><label>Escala fuente</label><input id="fontScale" type="number" min="0.70" max="1.20" step="0.02" value="0.92"></div>
           <div class="field"><label>Color fondo</label><input id="bgColor" type="color" value="#07131f"></div>
@@ -223,6 +223,7 @@
         <h3>Mapeo de datos</h3>
         <div class="small" style="margin-bottom:10px">Agregado: se guarda la última celda modificada para tenerla visible en configuración.</div>
         <div class="small" id="lastEditedCell">Última celda configurada: sin cambios</div>
+        <div class="row2" style="margin:10px 0 12px 0"><button class="btn secondary" id="restoreMappingBtn">Restaurar mapeo recomendado</button><div class="small">Se cargan las celdas sugeridas: H2, I2, T2, S2, R2, etc. Después podés ajustarlas.</div></div>
         <div id="mappingContainer"></div>
       </div>
 
@@ -269,7 +270,7 @@ const DEFAULT_MAPPING={
   p2Prod:{label:'P2/Tn producido',title:'P2/Tn producido',cell:'H2',manual:'',note:'Valor actual',fmt:'num'},
   p2Esp:{label:'P2/Tn esperado',title:'P2/Tn esperado',cell:'I2',manual:'',note:'Meta técnica',fmt:'num'},
   rendP2:{label:'Rendimiento p2',title:'Rendimiento p2',cell:'J2',manual:'',note:'Indicador principal',fmt:'pct',dec:1},
-  actualDia:{label:'Actual diario para objetivo',title:'Actual diario',cell:'H2',manual:'',note:'Usado en objetivo diario',fmt:'num'},
+  actualDia:{label:'Actual diario para objetivo',title:'Actual diario',cell:'T2',manual:'',note:'Usado en objetivo diario',fmt:'num'},
   objDia:{label:'Objetivo diario',title:'Objetivo diario',cell:'K2',manual:'',note:'Meta diaria',fmt:'num'},
   actualSem:{label:'Actual semanal para objetivo',title:'Actual semanal',cell:'S2',manual:'',note:'Semana en proceso. Recomendado usar celda dedicada.',fmt:'num'},
   objSem:{label:'Objetivo semanal',title:'Objetivo semanal',cell:'L2',manual:'',note:'Meta semanal',fmt:'num'},
@@ -280,7 +281,7 @@ const DEFAULT_MAPPING={
   sem3:{label:'Producción semana 3',title:'Semana 3',cell:'P2',manual:'',note:'Acumulado',fmt:'num'},
   sem4:{label:'Producción semana 4',title:'Semana 4',cell:'Q2',manual:'',note:'Acumulado',fmt:'num'}
 };
-const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V18 Google',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
+const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V19 Google',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
 const DEFAULT_USERS=[
   {username:'admin',password:'admin123',role:'admin'},
   {username:'operador',password:'operador123',role:'viewer'}
@@ -290,8 +291,21 @@ let lastRendered=loadRendered();
 const $=id=>document.getElementById(id);
 
 function deep(v){return JSON.parse(JSON.stringify(v))}
-function loadCfg(){try{const s=JSON.parse(localStorage.getItem('dashboard_excel_pro_v18')||'null');if(!s)return deep(DEFAULT_CFG);return {...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}}catch(e){return deep(DEFAULT_CFG)}}
-function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v18',JSON.stringify(cfg))}
+function normalizeCriticalMappings(target){
+  if(!target.mapping) target.mapping = deep(DEFAULT_MAPPING);
+  const up=v=>String(v||'').trim().toUpperCase();
+  target.mapping.actualDia={...deep(DEFAULT_MAPPING.actualDia),...(target.mapping.actualDia||{}),cell:'T2'};
+  target.mapping.p2Prod={...deep(DEFAULT_MAPPING.p2Prod),...(target.mapping.p2Prod||{}),cell:'H2'};
+  target.mapping.p2Esp={...deep(DEFAULT_MAPPING.p2Esp),...(target.mapping.p2Esp||{}),cell:'I2'};
+  target.mapping.actualSem={...deep(DEFAULT_MAPPING.actualSem),...(target.mapping.actualSem||{}),cell:'S2'};
+  if(up(target.mapping.actualDia.manual)==='' && up(target.mapping.actualDia.cell)!=='T2') target.mapping.actualDia.cell='T2';
+  if(up(target.mapping.p2Prod.manual)==='' && up(target.mapping.p2Prod.cell)!=='H2') target.mapping.p2Prod.cell='H2';
+  if(up(target.mapping.p2Esp.manual)==='' && up(target.mapping.p2Esp.cell)!=='I2') target.mapping.p2Esp.cell='I2';
+  if(up(target.mapping.actualSem.manual)==='' && up(target.mapping.actualSem.cell)!=='S2') target.mapping.actualSem.cell='S2';
+  return target;
+}
+function loadCfg(){try{const s=JSON.parse(localStorage.getItem('dashboard_excel_pro_v19')||'null');if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
+function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v19',JSON.stringify(cfg))}
 function loadUsers(){try{const s=JSON.parse(localStorage.getItem('dashboard_users_v18')||'null');return Array.isArray(s)&&s.length?s:deep(DEFAULT_USERS)}catch(e){return deep(DEFAULT_USERS)}}
 function saveUsers(){localStorage.setItem('dashboard_users_v18',JSON.stringify(users))}
 
@@ -389,6 +403,15 @@ function readSheetCell(cellRef){
   return c?(c.v??c.w??''):'';
 }
 function readMetric(key){const m=cfg.mapping[key];if(!m)return '';if(m.manual!=='')return m.manual;return readSheetCell(m.cell)}
+function metricSourceLabel(key){
+  const m=cfg.mapping[key];
+  if(!m) return '';
+  return m.manual!=='' ? 'Manual' : (String(m.cell||'').toUpperCase() || '-');
+}
+function metricRawPreview(key){
+  const raw = readMetric(key);
+  return raw===undefined || raw===null || raw==='' ? '-' : String(raw);
+}
 function numMetric(key){const m=cfg.mapping[key]; const raw=readMetric(key); return m&&m.fmt==='pct' ? normalizePercent(raw) : normalizeNumber(raw)}
 function displayMetric(key){const m=cfg.mapping[key]; if(!m) return ''; const raw=readMetric(key); if(m.fmt==='date')return formatDate(raw); if(m.fmt==='pct')return formatPct(normalizePercent(raw),m.dec??1); return formatNum(normalizeNumber(raw),m.dec??0)}
 function stateInfo(v){const r=normalizePercent(v);if(r<-1)return {name:'Crítico',cls:'red',text:'El rendimiento es menor que -1 y requiere revisión.'};if(r>=0)return {name:'Óptimo',cls:'green',text:'El rendimiento está bien y no requiere intervención.'};return {name:'Atención',cls:'yellow',text:'El rendimiento está entre -1 y 0. Conviene seguirlo.'}}
@@ -405,7 +428,19 @@ function renderConfig(){
   $('weekLabel1').value=cfg.weekLabels[0]||'Semana 1'; $('weekLabel2').value=cfg.weekLabels[1]||'Semana 2'; $('weekLabel3').value=cfg.weekLabels[2]||'Semana 3'; $('weekLabel4').value=cfg.weekLabels[3]||'Semana 4';
   $('sheetSelect').innerHTML=''; if(workbook){workbook.SheetNames.forEach(n=>{const op=document.createElement('option'); op.value=n; op.textContent=n; if(n===cfg.selectedSheet) op.selected=true; $('sheetSelect').appendChild(op);});} else {const op=document.createElement('option'); op.value=''; op.textContent='Sin libro cargado'; $('sheetSelect').appendChild(op);}
   $('lastEditedCell').textContent = `Última celda configurada: ${cfg.lastEditedCell || 'sin cambios'}`;
-  const box=$('mappingContainer'); box.innerHTML=''; Object.entries(cfg.mapping).forEach(([key,m])=>{const row=document.createElement('div'); row.className='map-row'; row.innerHTML=`<div class="m-name">${esc(m.label)}</div><div class="field"><label>Título</label><input data-key="${key}" data-prop="title" value="${esc(m.title||'')}"></div><div class="field"><label>Celda</label><input data-key="${key}" data-prop="cell" value="${esc(m.cell||'')}" placeholder="Ej: S2"></div><div class="field"><label>Manual</label><input data-key="${key}" data-prop="manual" value="${esc(m.manual||'')}" placeholder="Opcional"></div><div class="field"><label>Nota</label><input data-key="${key}" data-prop="note" value="${esc(m.note||'')}"></div>`; box.appendChild(row);});
+  const box=$('mappingContainer'); box.innerHTML='';
+  Object.entries(cfg.mapping).forEach(([key,m])=>{
+    const row=document.createElement('div');
+    row.className='map-row';
+    row.innerHTML=`<div class="m-name">${esc(m.label)}</div>
+      <div class="field"><label>Título</label><input data-key="${key}" data-prop="title" value="${esc(m.title||'')}"></div>
+      <div class="field"><label>Celda</label><input data-key="${key}" data-prop="cell" value="${esc(m.cell||'')}" placeholder="Ej: S2"></div>
+      <div class="field"><label>Manual</label><input data-key="${key}" data-prop="manual" value="${esc(m.manual||'')}" placeholder="Opcional"></div>
+      <div class="field"><label>Nota</label><input data-key="${key}" data-prop="note" value="${esc(m.note||'')}"></div>
+      <div class="field"><label>Fuente activa</label><input value="${esc(metricSourceLabel(key))}" readonly></div>
+      <div class="field"><label>Valor leído</label><input value="${esc(metricRawPreview(key))}" readonly></div>`;
+    box.appendChild(row);
+  });
   renderUsers();
 }
 function applyConfigFromPanel(){
@@ -414,7 +449,7 @@ function applyConfigFromPanel(){
   cfg.weekLabels=[$('weekLabel1').value||'Semana 1',$('weekLabel2').value||'Semana 2',$('weekLabel3').value||'Semana 3',$('weekLabel4').value||'Semana 4'];
   cfg.mapping.sem1.title=cfg.weekLabels[0]; cfg.mapping.sem2.title=cfg.weekLabels[1]; cfg.mapping.sem3.title=cfg.weekLabels[2]; cfg.mapping.sem4.title=cfg.weekLabels[3];
   document.querySelectorAll('#mappingContainer input').forEach(inp=>{cfg.mapping[inp.dataset.key][inp.dataset.prop]=inp.value; if(inp.dataset.prop==='cell' && inp.value.trim()!=='') cfg.lastEditedCell = `${cfg.mapping[inp.dataset.key].label}: ${inp.value.trim().toUpperCase()}`;});
-  saveCfgLS(); setVars(); renderTitles(); renderDashboard(); renderConfig();
+  normalizeCriticalMappings(cfg); saveCfgLS(); setVars(); renderTitles(); renderDashboard(); renderConfig();
 }
 function getActualDia(){return numMetric('actualDia')}
 function getActualSem(){return numMetric('actualSem')}
@@ -620,7 +655,22 @@ function renderFromStored(){
 }
 
 $('openCfg').onclick=()=>openCfg(); $('closeCfg').onclick=()=>closeCfg(); $('cfgBackdrop').onclick=()=>closeCfg();
-$('saveCfg').onclick=()=>{applyConfigFromPanel(); closeCfg();}; $('resetCfg').onclick=()=>{if(!confirm('¿Restablecer configuración?'))return; cfg=deep(DEFAULT_CFG); saveCfgLS(); renderConfig(); renderDashboard();};
+$('saveCfg').onclick=()=>{applyConfigFromPanel(); closeCfg();};
+$('restoreMappingBtn').onclick=()=>{
+  if(!confirm('¿Restaurar el mapeo recomendado? Esto reemplaza solo las celdas, manuales y notas del bloque de mapeo.')) return;
+  cfg.mapping = deep(DEFAULT_MAPPING);
+  cfg.lastEditedCell = 'Mapeo restaurado a recomendado';
+  saveCfgLS();
+  renderConfig();
+  renderDashboard();
+};
+$('resetCfg').onclick=()=>{
+  if(!confirm('¿Restablecer configuración completa?'))return;
+  cfg=normalizeCriticalMappings(deep(DEFAULT_CFG));
+  saveCfgLS();
+  renderConfig();
+  renderDashboard();
+};
 $('reloadBtn').onclick=()=>$('fileInput').click(); $('googleSyncBtn').onclick=()=>loadGoogleSheetData(true); $('fileInput').addEventListener('click',e=>{e.target.value='';}); $('fileInput').addEventListener('change',async e=>{const file=e.target.files[0]; if(!file)return; const buf=await file.arrayBuffer(); workbook=XLSX.read(buf,{type:'array'}); googleSheetGrid=null; if(!cfg.selectedSheet || !workbook.SheetNames.includes(cfg.selectedSheet)) cfg.selectedSheet=workbook.SheetNames[0]; $('fileInfo').textContent=`${file.name} · modificado ${new Date(file.lastModified).toLocaleString('es-AR')} · hoja ${cfg.selectedSheet}`; $('googleInfo').textContent='Fuente actual: Excel local'; renderConfig(); renderDashboard();});
 $('exportBtn').onclick=async ()=>{
   try{

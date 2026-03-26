@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Industrial Excel PRO V23 Google</title>
+  <title>Dashboard Industrial Excel PRO V24 Google</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -53,7 +53,7 @@
     .week-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
     .week-box{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)} .week-box .w-label{font-size:calc(12px * var(--fontScale));text-transform:uppercase;color:var(--muted)} .week-box .w-value{font-size:calc(24px * var(--fontScale));font-weight:950;margin-top:7px}.week-box .w-miss{font-size:calc(12px * var(--fontScale));color:#ffcc99;margin-top:6px}
     .chart-wrap{padding:12px;height:100%;min-height:0}.chart-wrap canvas{width:100%!important;height:100%!important}
-    .cfg-backdrop,.login-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:39}
+    .cfg-backdrop,.login-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;z-index:39} .app-content{display:none} body.auth-ok .app-content{display:block} body.auth-locked{overflow:hidden} body.auth-locked #verticalExport{display:none !important}
     .cfg{position:fixed;top:0;right:0;width:min(920px,97vw);height:100vh;background:linear-gradient(180deg,#0b1e31,#071421);border-left:1px solid rgba(72,133,182,.35);z-index:40;transform:translateX(100%);transition:.25s ease;overflow:auto}.cfg.open{transform:translateX(0)} .cfg-backdrop.open,.login-backdrop.open{display:block}
     .cfg-head{position:sticky;top:0;background:rgba(7,20,33,.96);padding:16px;border-bottom:1px solid rgba(72,133,182,.25);display:flex;justify-content:space-between;align-items:center}
     .cfg-body{padding:16px;display:grid;gap:18px}.cfg-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px}.cfg-card h3{margin:0 0 12px;font-size:16px}
@@ -126,7 +126,8 @@
     }
   </style>
 </head>
-<body>
+<body class="auth-locked">
+  <div id="appContent" class="app-content" aria-hidden="true">
   <div class="topbar">
     <div class="toolbar">
       <button class="btn" id="openCfg">⚙ Configuración</button>
@@ -167,6 +168,8 @@
     </div>
   </div>
 
+  </div>
+
   <div id="verticalExport" aria-hidden="true" style="position:fixed;left:-1400px;top:0;width:1200px;min-height:2200px;overflow:visible;background:linear-gradient(180deg,#07131f,#0d2744);padding:26px;opacity:1;pointer-events:none;z-index:-1;"></div>
 
   <div class="cfg-backdrop" id="cfgBackdrop"></div>
@@ -177,7 +180,7 @@
         <h3>Hoja y estilo general</h3>
         <div class="row4">
           <div class="field"><label>Hoja a leer</label><select id="sheetSelect"></select></div>
-          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V23 Google"></div>
+          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V24 Google"></div>
           <div class="field"><label>Meta semanal (línea roja)</label><input id="weeklyTargetLine" type="number" value="700000"></div>
           <div class="field"><label>Escala fuente</label><input id="fontScale" type="number" min="0.70" max="1.20" step="0.02" value="0.92"></div>
           <div class="field"><label>Color fondo</label><input id="bgColor" type="color" value="#07131f"></div>
@@ -254,7 +257,7 @@
   <div class="login-backdrop open" id="loginBackdrop"></div>
   <div class="login-box" id="loginBox">
     <div class="login-card">
-      <h3 style="margin-top:0">Ingreso al dashboard</h3>
+      <h3 style="margin-top:0">Ingreso al dashboard</h3><div class="small" style="margin:0 0 10px 0">El tablero queda oculto hasta validar usuario y contraseña.</div>
       <div class="field"><label>Usuario</label><input id="loginUser"></div>
       <div class="field"><label>Contraseña</label><input id="loginPass" type="password"></div>
       <div class="row2">
@@ -341,14 +344,14 @@ function normalizeCriticalMappings(target){
   if(up(target.mapping.actualSem.manual)==='' && up(target.mapping.actualSem.cell)!=='S2') target.mapping.actualSem.cell='S2';
   return target;
 }
-function loadCfg(){try{const s=JSON.parse(localStorage.getItem('dashboard_excel_pro_v23')||'null');if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
-function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v23',JSON.stringify(cfg))}
-function loadSession(){try{return JSON.parse(localStorage.getItem('dashboard_session_v22')||'null')}catch(e){return null}}
-function saveSession(){if(currentUser)localStorage.setItem('dashboard_session_v22',JSON.stringify(currentUser))}
-function clearSession(){localStorage.removeItem('dashboard_session_v22')}
+function loadCfg(){try{const s=JSON.parse(localStorage.getItem('dashboard_excel_pro_v24')||'null');if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
+function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v24',JSON.stringify(cfg))}
+function loadSession(){try{return JSON.parse(localStorage.getItem('dashboard_session_v24')||'null')}catch(e){return null}}
+function saveSession(){if(currentUser)localStorage.setItem('dashboard_session_v24',JSON.stringify(currentUser))}
+function clearSession(){localStorage.removeItem('dashboard_session_v24')}
 
-function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v23')||'null')}catch(e){return null}}
-function saveRendered(obj){localStorage.setItem('dashboard_rendered_v23',JSON.stringify(obj)); lastRendered=obj}
+function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v24')||'null')}catch(e){return null}}
+function saveRendered(obj){localStorage.setItem('dashboard_rendered_v24',JSON.stringify(obj)); lastRendered=obj}
 
 
 let googleSheetGrid = null;
@@ -817,7 +820,7 @@ $('exportBtn').onclick=async ()=>{
     alert('Error al exportar PNG.');
   }
 };
-$('logoutBtn').onclick=()=>{currentUser=null; clearSession(); renderUserChip(); updateCfgButton(); $('loginBackdrop').classList.add('open'); $('loginBox').style.display='flex'; $('loginMsg').textContent='Sesión cerrada';};
+$('logoutBtn').onclick=()=>{currentUser=null; clearSession(); renderUserChip(); updateCfgButton(); lockApp('Sesión cerrada');};
 $('loginBtn').onclick=async ()=>{
   const u=$('loginUser').value.trim();
   const p=$('loginPass').value;
@@ -833,11 +836,9 @@ $('loginBtn').onclick=async ()=>{
     const role = String(data.role||'visor').toLowerCase()==='viewer' ? 'visor' : String(data.role||'visor').toLowerCase();
     currentUser={username:u,role};
     saveSession();
-    $('loginBackdrop').classList.remove('open');
-    $('loginBox').style.display='none';
-    $('loginMsg').textContent='';
     renderUserChip();
     updateCfgButton();
+    unlockApp();
   }catch(err){
     console.error(err);
     $('loginMsg').textContent='Error de respuesta del servidor. Presione F12 y revise Console.';
@@ -871,22 +872,17 @@ $('saveAccountBtn').onclick=async ()=>{
     }
   }catch(err){
     console.error(err);
-    $('accountMsg').textContent='Error de respuesta del servidor. Presione F12 y revise Console.';
+    $('accountMsg').textContent='Error de respuesta del servidor. Revise Apps Script y F12 > Console.';
   }
 };
 $('addUserBtn').onclick=()=>{};
 $('saveUsersBtn').onclick=()=>{};
 setVars(); renderConfig(); if(lastRendered) renderFromStored(); else renderDashboard();
-const savedSession = loadSession();
-if(savedSession && savedSession.username && savedSession.role){
-  currentUser=savedSession;
-  $('loginBackdrop').classList.remove('open');
-  $('loginBox').style.display='none';
-}else{
-  $('loginBackdrop').classList.add('open');
-  $('loginBox').style.display='flex';
-}
-renderUserChip(); updateCfgButton(); if(cfg.useGoogleSheet && cfg.googleAutoLoad && cfg.googleSheetUrl){ loadGoogleSheetData(false); }
+clearSession();
+currentUser=null;
+renderUserChip();
+updateCfgButton();
+lockApp('Ingrese usuario y contraseña para visualizar el dashboard');
 </script>
 </body>
 </html>

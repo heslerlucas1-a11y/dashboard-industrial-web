@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Industrial Excel PRO V28 Roles Google</title>
+  <title>Dashboard Industrial Excel PRO V29 Roles Google</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -65,6 +65,7 @@
     .account-card{width:min(430px,92vw);background:linear-gradient(180deg,#0b1e31,#071421);border:1px solid rgba(72,133,182,.35);border-radius:18px;padding:18px;box-shadow:0 25px 60px rgba(0,0,0,.45)}
     .user-chip{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);font-size:12px}
     .warn{color:#fcd34d}
+    .users-grid{display:grid;gap:8px}.user-row{display:grid;grid-template-columns:1.2fr 1fr .72fr .72fr;gap:8px;align-items:end;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:10px;border-radius:14px}.user-row.head{background:transparent;border:none;padding:0 2px 6px}.user-row.head div{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.user-row .field{margin-bottom:0}.user-row input,.user-row select{min-width:0}.user-actions{display:flex;gap:8px;justify-content:flex-end}.centered-num{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
 
     
     .critical-glow{animation:criticalPulse 1.0s infinite ease-in-out; box-shadow:0 0 16px rgba(239,68,68,.30), 0 0 40px rgba(239,68,68,.28)}
@@ -132,7 +133,7 @@
       <button class="btn" id="openCfg" data-admin-only="true">⚙ Configuración</button>
       <label class="file-label" id="fileLabel" data-admin-only="true">📂 Cargar Excel <input type="file" id="fileInput" accept=".xlsx,.xls,.csv"></label>
       <button class="btn secondary" id="reloadBtn" data-admin-only="true">↻ Recargar Excel</button>
-      <button class="btn secondary" id="googleSyncBtn" data-admin-only="true">☁ Sincronizar Google</button>
+      <button class="btn secondary" id="googleSyncBtn">☁ Sincronizar Google</button>
       <button class="btn green" id="exportBtn">🖼 Exportar PNG</button>
       <select class="btn secondary" id="exportMode" style="appearance:none;min-width:170px;padding-right:34px"><option value="mobile">PNG Celular</option><option value="presentation">PNG Presentación</option><option value="desktop">PNG PC</option></select>
     </div>
@@ -179,7 +180,7 @@
         <h3>Hoja y estilo general</h3>
         <div class="row4">
           <div class="field"><label>Hoja a leer</label><select id="sheetSelect"></select></div>
-          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V28 Roles Google"></div>
+          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V29 Roles Google"></div>
           <div class="field"><label>Meta semanal (línea roja)</label><input id="weeklyTargetLine" type="number" value="700000"></div>
           <div class="field"><label>Escala fuente</label><input id="fontScale" type="number" min="0.70" max="1.20" step="0.02" value="0.92"></div>
           <div class="field"><label>Color fondo</label><input id="bgColor" type="color" value="#07131f"></div>
@@ -246,6 +247,8 @@
       <div class="cfg-card">
         <h3>Usuarios</h3>
         <div class="small warn" style="margin-bottom:10px">Esta versión usa login real contra Google Apps Script. Los usuarios ya no se guardan en este navegador.</div>
+        <div class="small" style="margin-bottom:10px">Administración centralizada de usuarios desde Apps Script. Desde acá podés agregar usuarios, cambiar rol, activar/desactivar y definir contraseña inicial.</div>
+        <div class="small warn" id="usersMsg" style="margin-bottom:10px">Cargando lista de usuarios...</div>
         <div id="usersContainer"></div>
         <div class="row2">
           <button class="btn green" id="addUserBtn" style="display:none">Agregar usuario</button>
@@ -313,7 +316,7 @@ const DEFAULT_MAPPING={
   sem3:{label:'Producción semana 3',title:'Semana 3',cell:'P2',manual:'',note:'Acumulado',fmt:'num'},
   sem4:{label:'Producción semana 4',title:'Semana 4',cell:'Q2',manual:'',note:'Acumulado',fmt:'num'}
 };
-const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V28 Roles Google',exportBrandText:'LAHARRAGUE CHODORGE',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
+const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V29 Roles Google',exportBrandText:'LAHARRAGUE CHODORGE',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec';
 
 function jsonpRequest(params){
@@ -375,17 +378,18 @@ function normalizeCriticalMappings(target){
   if(up(target.mapping.actualSem.manual)==='' && up(target.mapping.actualSem.cell)!=='S2') target.mapping.actualSem.cell='S2';
   return target;
 }
-function loadCfg(){try{const raw=localStorage.getItem('dashboard_excel_pro_v28')||localStorage.getItem('dashboard_excel_pro_v27')||localStorage.getItem('dashboard_excel_pro_v26')||'null';const s=JSON.parse(raw);if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
-function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v28',JSON.stringify(cfg))}
-function loadSession(){try{return JSON.parse(sessionStorage.getItem('dashboard_session_v28')||sessionStorage.getItem('dashboard_session_v27')||'null')}catch(e){return null}}
-function saveSession(){if(currentUser)sessionStorage.setItem('dashboard_session_v28',JSON.stringify(currentUser))}
-function clearSession(){sessionStorage.removeItem('dashboard_session_v28');sessionStorage.removeItem('dashboard_session_v27')}
+function loadCfg(){try{const raw=localStorage.getItem('dashboard_excel_pro_v29')||localStorage.getItem('dashboard_excel_pro_v27')||localStorage.getItem('dashboard_excel_pro_v26')||'null';const s=JSON.parse(raw);if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
+function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v29',JSON.stringify(cfg))}
+function loadSession(){try{return JSON.parse(sessionStorage.getItem('dashboard_session_v29')||sessionStorage.getItem('dashboard_session_v27')||'null')}catch(e){return null}}
+function saveSession(){if(currentUser)sessionStorage.setItem('dashboard_session_v29',JSON.stringify(currentUser))}
+function clearSession(){sessionStorage.removeItem('dashboard_session_v29');sessionStorage.removeItem('dashboard_session_v27')}
 
-function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v28')||localStorage.getItem('dashboard_rendered_v27')||'null')}catch(e){return null}}
-function saveRendered(obj){localStorage.setItem('dashboard_rendered_v28',JSON.stringify(obj)); lastRendered=obj}
+function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v29')||localStorage.getItem('dashboard_rendered_v27')||'null')}catch(e){return null}}
+function saveRendered(obj){localStorage.setItem('dashboard_rendered_v29',JSON.stringify(obj)); lastRendered=obj}
 
 
 let googleSheetGrid = null;
+window.userAdminRows = [];
 
 function colToIndex(col){
   let n = 0;
@@ -513,6 +517,7 @@ function updateRoleUi(){
   document.querySelectorAll('[data-admin-only="true"]').forEach(el=>{
     el.style.display = isAdmin ? '' : 'none';
   });
+  $('googleSyncBtn').style.display = currentUser ? 'inline-block' : 'none';
   $('accountBtn').style.display = currentUser ? 'inline-block' : 'none';
   $('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
 }
@@ -572,11 +577,76 @@ function openAccount(){
   $('accountBox').style.display='flex';
 }
 function closeAccount(){ $('accountBackdrop').classList.remove('open'); $('accountBox').style.display='none'; }
-function openCfg(){ if(!currentUser || currentUser.role!=='admin'){ alert('Solo el usuario administrador puede entrar a configuración.'); return; } $('cfgBackdrop').classList.add('open'); $('cfgPanel').classList.add('open'); }
+function openCfg(){ if(!currentUser || currentUser.role!=='admin'){ alert('Solo el usuario administrador puede entrar a configuración.'); return; } $('cfgBackdrop').classList.add('open'); $('cfgPanel').classList.add('open'); refreshUsersFromBackend(); }
 function closeCfg(){ $('cfgBackdrop').classList.remove('open'); $('cfgPanel').classList.remove('open'); }
 function renderUsers(){
   const box=$('usersContainer');
-  box.innerHTML='<div class="small">Usuarios administrados por Apps Script.<br>Alta y baja de usuarios todavía no están expuestas en este HTML. El cambio de contraseña del usuario activo ya funciona contra Apps Script.</div>';
+  const msg=$('usersMsg');
+  const isAdmin = !!(currentUser && currentUser.role==='admin');
+  $('addUserBtn').style.display = isAdmin ? 'inline-block' : 'none';
+  $('saveUsersBtn').style.display = isAdmin ? 'inline-block' : 'none';
+
+  if(!isAdmin){
+    box.innerHTML='<div class="small">Los usuarios se administran con permisos de administrador.</div>';
+    if(msg) msg.textContent='Modo visor: sin permisos para editar usuarios.';
+    return;
+  }
+
+  if(!window.userAdminRows || !Array.isArray(window.userAdminRows) || !window.userAdminRows.length){
+    box.innerHTML='<div class="small">No hay usuarios cargados todavía o el backend V29 aún no expone la lista.</div>';
+    if(msg) msg.textContent='Podés recargar la lista desde configuración.';
+    return;
+  }
+
+  const head = `<div class="user-row head"><div>Usuario</div><div>Contraseña</div><div>Rol</div><div>Activo</div></div>`;
+  const rows = window.userAdminRows.map((u,idx)=>`
+    <div class="user-row" data-user-idx="${idx}">
+      <div class="field"><input data-key="username" value="${esc(u.username||'')}" ${u.locked?'readonly':''}></div>
+      <div class="field"><input data-key="password" value="${esc(u.password||'')}" placeholder="Contraseña"></div>
+      <div class="field"><select data-key="role"><option value="admin" ${u.role==='admin'?'selected':''}>admin</option><option value="visor" ${u.role==='visor'?'selected':''}>visor</option></select></div>
+      <div class="field"><select data-key="active"><option value="SI" ${(String(u.active||'SI').toUpperCase()==='SI')?'selected':''}>SI</option><option value="NO" ${(String(u.active||'SI').toUpperCase()==='NO')?'selected':''}>NO</option></select></div>
+    </div>`).join('');
+  box.innerHTML = `<div class="users-grid">${head}${rows}</div>`;
+  if(msg) msg.textContent='Editá y guardá. Los cambios impactan sobre la hoja Usuarios vía Apps Script V29.';
+}
+
+async function refreshUsersFromBackend(){
+  const msg=$('usersMsg');
+  if(!currentUser || currentUser.role!=='admin') return;
+  if(msg) msg.textContent='Cargando usuarios desde Apps Script...';
+  try{
+    const data = await jsonpRequest({action:'listUsers'});
+    if(data && data.status==='ok' && Array.isArray(data.users)){
+      window.userAdminRows = data.users.map(u=>({
+        username:String(u.username||''),
+        password:String(u.password||''),
+        role:String(u.role||'visor'),
+        active:String(u.active||'SI').toUpperCase()==='NO'?'NO':'SI',
+        locked:true
+      }));
+      renderUsers();
+      if(msg) msg.textContent='Usuarios cargados correctamente.';
+    }else{
+      window.userAdminRows=[];
+      renderUsers();
+      if(msg) msg.textContent=(data&&data.message)||'El backend no devolvió lista de usuarios.';
+    }
+  }catch(err){
+    console.error(err);
+    window.userAdminRows=[];
+    renderUsers();
+    if(msg) msg.textContent='No se pudo leer la lista de usuarios. Revisá que Apps Script tenga las acciones V29.';
+  }
+}
+
+function collectUsersFromPanel(){
+  const rows=[...document.querySelectorAll('#usersContainer .user-row[data-user-idx]')];
+  return rows.map(row=>({
+    username: row.querySelector('[data-key="username"]').value.trim(),
+    password: row.querySelector('[data-key="password"]').value.trim(),
+    role: row.querySelector('[data-key="role"]').value,
+    active: row.querySelector('[data-key="active"]').value
+  })).filter(u=>u.username);
 }
 function renderConfig(){
   $('dashTitle').value=cfg.dashTitle; $('weeklyTargetLine').value=cfg.weeklyTargetLine; $('exportBrandText').value=cfg.exportBrandText||'LAHARRAGUE CHODORGE'; $('bgColor').value=cfg.bgColor; $('panelColor').value=cfg.panelColor; $('textColor').value=cfg.textColor; $('kpiH').value=cfg.kpiH; $('fontScale').value=cfg.fontScale; $('useGoogleSheet').value=String(!!cfg.useGoogleSheet); $('googleAutoLoad').value=String(!!cfg.googleAutoLoad); $('googleSheetUrl').value=cfg.googleSheetUrl || '';
@@ -600,12 +670,35 @@ function renderConfig(){
   renderUsers();
 }
 function applyConfigFromPanel(){
-  cfg.dashTitle=$('dashTitle').value||DEFAULT_CFG.dashTitle; cfg.weeklyTargetLine=normalizeNumber($('weeklyTargetLine').value); cfg.exportBrandText=$('exportBrandText').value||DEFAULT_CFG.exportBrandText; cfg.bgColor=$('bgColor').value; cfg.panelColor=$('panelColor').value; cfg.textColor=$('textColor').value; cfg.kpiH=Number($('kpiH').value||DEFAULT_CFG.kpiH); cfg.fontScale=Number($('fontScale').value||DEFAULT_CFG.fontScale); cfg.selectedSheet=$('sheetSelect').value||cfg.selectedSheet; cfg.useGoogleSheet=$('useGoogleSheet').value==='true'; cfg.googleAutoLoad=$('googleAutoLoad').value==='true'; cfg.googleSheetUrl=$('googleSheetUrl').value.trim();
+  cfg.dashTitle=$('dashTitle').value||DEFAULT_CFG.dashTitle;
+  cfg.weeklyTargetLine=normalizeNumber($('weeklyTargetLine').value);
+  cfg.exportBrandText=$('exportBrandText').value||DEFAULT_CFG.exportBrandText;
+  cfg.bgColor=$('bgColor').value;
+  cfg.panelColor=$('panelColor').value;
+  cfg.textColor=$('textColor').value;
+  cfg.kpiH=Number($('kpiH').value||DEFAULT_CFG.kpiH);
+  cfg.fontScale=Number($('fontScale').value||DEFAULT_CFG.fontScale);
+  cfg.selectedSheet=$('sheetSelect').value||cfg.selectedSheet;
+  cfg.useGoogleSheet=$('useGoogleSheet').value==='true';
+  cfg.googleAutoLoad=$('googleAutoLoad').value==='true';
+  cfg.googleSheetUrl=$('googleSheetUrl').value.trim();
   Object.keys(DEFAULT_TITLES).forEach(k=>{const el=document.getElementById(k+'_in'); if(el) cfg.titles[k]=el.value||DEFAULT_TITLES[k]});
-  cfg.weekLabels=[$('weekLabel1').value||'Semana 1',$('weekLabel2').value||'Semana 2',$('weekLabel3').value||'Semana 3',$('weekLabel4').value||'Semana 4']; cfg.weekLabelsAuto=$('weekLabelsAuto').value==='true'; cfg.weekLabelStartCell=($('weekLabelStartCell').value||'').trim().toUpperCase();
-  cfg.mapping.sem1.title=cfg.weekLabels[0]; cfg.mapping.sem2.title=cfg.weekLabels[1]; cfg.mapping.sem3.title=cfg.weekLabels[2]; cfg.mapping.sem4.title=cfg.weekLabels[3];
-  document.querySelectorAll('#mappingContainer input').forEach(inp=>{cfg.mapping[inp.dataset.key][inp.dataset.prop]=inp.value; if(inp.dataset.prop==='cell' && inp.value.trim()!=='') cfg.lastEditedCell = `${cfg.mapping[inp.dataset.key].label}: ${inp.value.trim().toUpperCase()}`;});
-  normalizeCriticalMappings(cfg); saveCfgLS(); setVars(); renderTitles(); renderDashboard(); renderConfig();
+  cfg.weekLabels=[$('weekLabel1').value||'Semana 1',$('weekLabel2').value||'Semana 2',$('weekLabel3').value||'Semana 3',$('weekLabel4').value||'Semana 4'];
+  cfg.weekLabelsAuto=$('weekLabelsAuto').value==='true';
+  cfg.weekLabelStartCell=($('weekLabelStartCell').value||'').trim().toUpperCase();
+  cfg.mapping.sem1.title=cfg.weekLabels[0];
+  cfg.mapping.sem2.title=cfg.weekLabels[1];
+  cfg.mapping.sem3.title=cfg.weekLabels[2];
+  cfg.mapping.sem4.title=cfg.weekLabels[3];
+  document.querySelectorAll('#mappingContainer input').forEach(inp=>{
+    cfg.mapping[inp.dataset.key][inp.dataset.prop]=inp.value;
+    if(inp.dataset.prop==='cell' && inp.value.trim()!=='') cfg.lastEditedCell = `${cfg.mapping[inp.dataset.key].label}: ${inp.value.trim().toUpperCase()}`;
+  });
+  normalizeCriticalMappings(cfg);
+  saveCfgLS();
+  setVars();
+  renderTitles();
+  renderConfig();
 }
 function getActualDia(){return numMetric('actualDia')}
 function getActualSem(){return numMetric('actualSem')}
@@ -677,8 +770,8 @@ function buildStackedExport(mode="mobile"){
     d.style.borderRadius = '16px';
     d.style.padding = '14px';
     d.innerHTML = `<div style="font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:#bfe2ff;font-weight:700">${label}</div>
-      <div style="font-size:36px;font-weight:900;color:#ffffff;margin-top:8px;line-height:1.04">${value}</div>
-      ${note ? `<div style="font-size:15px;color:#d4ecff;margin-top:8px;line-height:1.2">${note}</div>` : ''}`;
+      <div style="font-size:40px;font-weight:900;color:#ffffff;margin-top:10px;line-height:1.04;text-align:center;display:flex;justify-content:center;align-items:center;min-height:44px">${value}</div>
+      ${note ? `<div style="font-size:15px;color:#d4ecff;margin-top:8px;line-height:1.2;text-align:center;display:flex;justify-content:center;align-items:center">${note}</div>` : ''}`;
     return d;
   };
 
@@ -717,8 +810,8 @@ function buildStackedExport(mode="mobile"){
   top.style.gap = preset.gap;
 
   const c1 = mkCard();
-  c1.innerHTML = `<div style="font-size:16px;letter-spacing:.12em;text-transform:uppercase;color:#bfe2ff">Fecha de proceso</div>
-    <div style="font-size:68px;font-weight:950;line-height:1.05;margin-top:12px">${d.fecha || '--/--/----'}</div>`;
+  c1.innerHTML = `<div style="font-size:16px;letter-spacing:.12em;text-transform:uppercase;color:#bfe2ff;text-align:center">Fecha de proceso</div>
+    <div style="font-size:68px;font-weight:950;line-height:1.05;margin-top:12px;text-align:center;display:flex;justify-content:center;align-items:center;min-height:80px">${d.fecha || '--/--/----'}</div>`;
   top.appendChild(c1);
 
   const c2 = mkCard();
@@ -762,10 +855,10 @@ function buildStackedExport(mode="mobile"){
       <div style="font-size:${preset.metric}px;font-weight:900;color:#ffffff">${g.pct}</div>
     </div>
     <div style="height:16px;border-radius:999px;background:#05111c;margin-top:12px;overflow:hidden"><div style="height:100%;width:${Math.min(100, parseFloat(String(g.pct).replace(',','.').replace('%','')))}%;border-radius:999px;background:linear-gradient(90deg,#0ea5e9,#22c55e)"></div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;font-size:14px;color:#cde8ff">
-      <div>Actual<br><b style="font-size:24px;color:#fff">${g.actual}</b></div>
-      <div>Objetivo<br><b style="font-size:24px;color:#fff">${g.obj}</b></div>
-      <div>Falta<br><b style="font-size:24px;color:#fff">${g.falta}</b></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;font-size:14px;color:#cde8ff;text-align:center">
+      <div>Actual<br><b style="font-size:26px;color:#fff;display:block;margin-top:4px">${g.actual}</b></div>
+      <div>Objetivo<br><b style="font-size:26px;color:#fff;display:block;margin-top:4px">${g.obj}</b></div>
+      <div>Falta<br><b style="font-size:26px;color:#fff;display:block;margin-top:4px">${g.falta}</b></div>
     </div>`;
     og.appendChild(item);
   });
@@ -826,7 +919,9 @@ function renderFromStored(){
 }
 
 $('openCfg').onclick=()=>openCfg(); $('closeCfg').onclick=()=>closeCfg(); $('cfgBackdrop').onclick=()=>closeCfg();
-$('saveCfg').onclick=async ()=>{applyConfigFromPanel(); closeCfg(); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ await autoSyncGoogleOnAccess(false); } renderDashboard();};
+$('saveCfg').onclick=async ()=>{ applyConfigFromPanel(); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ await autoSyncGoogleOnAccess(true); } renderDashboard(); closeCfg(); };
+$('addUserBtn').onclick=()=>{ if(!window.userAdminRows) window.userAdminRows=[]; window.userAdminRows.push({username:'',password:'',role:'visor',active:'SI',locked:false}); renderUsers(); };
+$('saveUsersBtn').onclick=async ()=>{ const users=collectUsersFromPanel(); if(!users.length){ $('usersMsg').textContent='No hay usuarios para guardar.'; return; } $('usersMsg').textContent='Guardando usuarios en Apps Script...'; try{ const payload = btoa(unescape(encodeURIComponent(JSON.stringify(users)))); const data = await jsonpRequest({action:'saveUsers', payload}); if(data && data.status==='ok'){ $('usersMsg').textContent='Usuarios guardados correctamente.'; await refreshUsersFromBackend(); } else { $('usersMsg').textContent=(data&&data.message)||'No se pudieron guardar los usuarios.'; } }catch(err){ console.error(err); $('usersMsg').textContent='Error al guardar usuarios. Revisá Apps Script V29.'; } };
 $('restoreMappingBtn').onclick=()=>{
   if(!confirm('¿Restaurar el mapeo recomendado? Esto reemplaza solo las celdas, manuales y notas del bloque de mapeo.')) return;
   cfg.mapping = deep(DEFAULT_MAPPING);
@@ -894,7 +989,7 @@ $('exportBtn').onclick=async ()=>{
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `dashboard_${mode}_v28.png`;
+      a.download = `dashboard_${mode}_v29.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -959,8 +1054,6 @@ $('saveAccountBtn').onclick=async ()=>{
     $('accountMsg').textContent='No se pudo actualizar la contraseña con Apps Script.';
   }
 };
-$('addUserBtn').onclick=()=>{};
-$('saveUsersBtn').onclick=()=>{};
 let sessionTimer = null;
 function bumpSessionTimer(){
   if(!currentUser) return;

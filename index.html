@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Industrial Excel PRO V20 Google</title>
+  <title>Dashboard Industrial Excel PRO V23 Google</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -62,6 +62,8 @@
     .map-row{display:grid;grid-template-columns:1.08fr .8fr .58fr .62fr .82fr;gap:8px;align-items:end;margin-bottom:8px}.m-name{font-size:13px;font-weight:700;color:#dcecff;padding-bottom:10px}.small{font-size:12px;color:var(--muted);line-height:1.35}
     .login-box{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:50;pointer-events:none}
     .login-card{width:min(420px,92vw);background:linear-gradient(180deg,#0b1e31,#071421);border:1px solid rgba(72,133,182,.35);border-radius:18px;padding:18px;box-shadow:0 25px 60px rgba(0,0,0,.45);pointer-events:auto}
+    .account-box{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:52}
+    .account-card{width:min(430px,92vw);background:linear-gradient(180deg,#0b1e31,#071421);border:1px solid rgba(72,133,182,.35);border-radius:18px;padding:18px;box-shadow:0 25px 60px rgba(0,0,0,.45)}
     .user-chip{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);font-size:12px}
     .warn{color:#fcd34d}
 
@@ -136,6 +138,7 @@
     </div>
     <div class="toolbar">
       <div class="user-chip" id="userChip">No autenticado</div>
+      <button class="btn secondary" id="accountBtn">Mi usuario</button>
       <button class="btn secondary" id="logoutBtn">Salir</button>
       <div class="mini" id="fileInfo">Sin archivo cargado</div>
       <div class="mini" id="googleInfo">Google Sheets inactivo</div>
@@ -174,7 +177,7 @@
         <h3>Hoja y estilo general</h3>
         <div class="row4">
           <div class="field"><label>Hoja a leer</label><select id="sheetSelect"></select></div>
-          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V20 Google"></div>
+          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V23 Google"></div>
           <div class="field"><label>Meta semanal (línea roja)</label><input id="weeklyTargetLine" type="number" value="700000"></div>
           <div class="field"><label>Escala fuente</label><input id="fontScale" type="number" min="0.70" max="1.20" step="0.02" value="0.92"></div>
           <div class="field"><label>Color fondo</label><input id="bgColor" type="color" value="#07131f"></div>
@@ -236,11 +239,11 @@
 
       <div class="cfg-card">
         <h3>Usuarios</h3>
-        <div class="small warn" style="margin-bottom:10px">Este control de usuarios funciona dentro del navegador local. No reemplaza una seguridad de servidor.</div>
+        <div class="small warn" style="margin-bottom:10px">Esta versión usa login real contra Google Apps Script. Los usuarios ya no se guardan en este navegador.</div>
         <div id="usersContainer"></div>
         <div class="row2">
-          <button class="btn green" id="addUserBtn">Agregar usuario</button>
-          <button class="btn red" id="saveUsersBtn">Guardar usuarios</button>
+          <button class="btn green" id="addUserBtn" style="display:none">Agregar usuario</button>
+          <button class="btn red" id="saveUsersBtn" style="display:none">Guardar usuarios</button>
         </div>
       </div>
 
@@ -256,9 +259,25 @@
       <div class="field"><label>Contraseña</label><input id="loginPass" type="password"></div>
       <div class="row2">
         <button class="btn green" id="loginBtn">Ingresar</button>
-        <button class="btn secondary" id="guestBtn">Entrar como visor</button>
       </div>
-      <div class="small" id="loginMsg" style="margin-top:10px">Usuarios iniciales: admin / admin123 y operador / operador123</div>
+      <div class="small" id="loginMsg" style="margin-top:10px">Login centralizado con Google Apps Script. Usá los usuarios cargados en la hoja Usuarios.</div>
+    </div>
+  </div>
+
+  <div class="login-backdrop" id="accountBackdrop"></div>
+  <div class="account-box" id="accountBox">
+    <div class="account-card">
+      <h3 style="margin-top:0">Mi usuario</h3>
+      <div class="small" style="margin-bottom:10px">Cambio de contraseña conectado a Google Apps Script. La clave se valida contra la hoja <b>Usuarios</b> y el evento queda registrado en <b>Logs</b>.</div>
+      <div class="field"><label>Usuario</label><input id="accountUser" readonly></div>
+      <div class="field"><label>Contraseña actual</label><input id="accountCurrentPass" type="password" placeholder="Ingrese su contraseña actual"></div>
+      <div class="field"><label>Nueva contraseña</label><input id="accountPass" type="password" placeholder="Mínimo 4 caracteres"></div>
+      <div class="field"><label>Confirmar nueva contraseña</label><input id="accountPass2" type="password" placeholder="Repetir nueva contraseña"></div>
+      <div class="row2">
+        <button class="btn green" id="saveAccountBtn">Cambiar contraseña</button>
+        <button class="btn secondary" id="closeAccountBtn">Cerrar</button>
+      </div>
+      <div class="small" id="accountMsg" style="margin-top:10px"></div>
     </div>
   </div>
 
@@ -288,12 +307,9 @@ const DEFAULT_MAPPING={
   sem3:{label:'Producción semana 3',title:'Semana 3',cell:'P2',manual:'',note:'Acumulado',fmt:'num'},
   sem4:{label:'Producción semana 4',title:'Semana 4',cell:'Q2',manual:'',note:'Acumulado',fmt:'num'}
 };
-const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V20 Google',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
-const DEFAULT_USERS=[
-  {username:'admin',password:'admin123',role:'admin'},
-  {username:'operador',password:'operador123',role:'viewer'}
-];
-let cfg=loadCfg(), users=loadUsers(), workbook=null, weekChart=null, currentUser=null;
+const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V21 Google',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
+const WEB_APP_URL='https://script.google.com/macros/s/AKfycbwlXprgSY19BieEdgHZMACD0hnTAq44GfmKyKv3Tprb-TP72fZ43xD40x4F9xJzHNRA/exec';
+let cfg=loadCfg(), workbook=null, weekChart=null, currentUser=null;
 let lastRendered=loadRendered();
 const $=id=>document.getElementById(id);
 
@@ -311,13 +327,14 @@ function normalizeCriticalMappings(target){
   if(up(target.mapping.actualSem.manual)==='' && up(target.mapping.actualSem.cell)!=='S2') target.mapping.actualSem.cell='S2';
   return target;
 }
-function loadCfg(){try{const s=JSON.parse(localStorage.getItem('dashboard_excel_pro_v20')||'null');if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
-function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v20',JSON.stringify(cfg))}
-function loadUsers(){try{const s=JSON.parse(localStorage.getItem('dashboard_users_v20')||'null');return Array.isArray(s)&&s.length?s:deep(DEFAULT_USERS)}catch(e){return deep(DEFAULT_USERS)}}
-function saveUsers(){localStorage.setItem('dashboard_users_v20',JSON.stringify(users))}
+function loadCfg(){try{const s=JSON.parse(localStorage.getItem('dashboard_excel_pro_v23')||'null');if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
+function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v23',JSON.stringify(cfg))}
+function loadSession(){try{return JSON.parse(localStorage.getItem('dashboard_session_v22')||'null')}catch(e){return null}}
+function saveSession(){if(currentUser)localStorage.setItem('dashboard_session_v22',JSON.stringify(currentUser))}
+function clearSession(){localStorage.removeItem('dashboard_session_v22')}
 
-function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v20')||'null')}catch(e){return null}}
-function saveRendered(obj){localStorage.setItem('dashboard_rendered_v20',JSON.stringify(obj)); lastRendered=obj}
+function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v23')||'null')}catch(e){return null}}
+function saveRendered(obj){localStorage.setItem('dashboard_rendered_v23',JSON.stringify(obj)); lastRendered=obj}
 
 
 let googleSheetGrid = null;
@@ -443,10 +460,32 @@ function stateInfo(v){const r=normalizePercent(v);if(r<-1)return {name:'Crítico
 function renderTitles(){Object.keys(cfg.titles).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=cfg.titles[id]})}
 function esc(s){return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
 function renderUserChip(){ $('userChip').textContent = currentUser ? `${currentUser.username} · ${currentUser.role}` : 'No autenticado'; }
-function updateCfgButton(){ $('openCfg').style.display = currentUser && currentUser.role==='admin' ? 'inline-block' : 'none'; }
+function updateCfgButton(){
+  $('openCfg').style.display = currentUser && currentUser.role==='admin' ? 'inline-block' : 'none';
+  $('accountBtn').style.display = currentUser ? 'inline-block' : 'none';
+  $('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
+}
+function openAccount(){
+  if(!currentUser){ return; }
+  $('accountUser').value=currentUser.username||'';
+  $('accountUser').setAttribute('readonly','readonly');
+  if($('accountCurrentPass')) $('accountCurrentPass').value='';
+  $('accountPass').value='';
+  $('accountPass2').value='';
+  $('accountPass').removeAttribute('disabled');
+  $('accountPass2').removeAttribute('disabled');
+  $('saveAccountBtn').style.display='inline-block';
+  $('accountMsg').textContent='Ingrese su contraseña actual y la nueva clave.';
+  $('accountBackdrop').classList.add('open');
+  $('accountBox').style.display='flex';
+}
+function closeAccount(){ $('accountBackdrop').classList.remove('open'); $('accountBox').style.display='none'; }
 function openCfg(){ if(!currentUser || currentUser.role!=='admin'){ alert('Solo el usuario administrador puede entrar a configuración.'); return; } $('cfgBackdrop').classList.add('open'); $('cfgPanel').classList.add('open'); }
 function closeCfg(){ $('cfgBackdrop').classList.remove('open'); $('cfgPanel').classList.remove('open'); }
-function renderUsers(){ const box=$('usersContainer'); box.innerHTML=''; users.forEach((u,i)=>{ const row=document.createElement('div'); row.className='row4'; row.style.marginBottom='8px'; row.innerHTML=`<div class="field"><label>Usuario</label><input data-u="${i}" data-p="username" value="${esc(u.username)}"></div><div class="field"><label>Contraseña</label><input data-u="${i}" data-p="password" value="${esc(u.password)}"></div><div class="field"><label>Rol</label><select data-u="${i}" data-p="role"><option value="admin"${u.role==='admin'?' selected':''}>admin</option><option value="viewer"${u.role==='viewer'?' selected':''}>viewer</option></select></div><div class="field"><label>Acción</label><button class="btn red" data-del="${i}">Eliminar</button></div>`; box.appendChild(row); }); box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{users.splice(Number(b.dataset.del),1); renderUsers();}); }
+function renderUsers(){
+  const box=$('usersContainer');
+  box.innerHTML='<div class="small">Usuarios administrados por Apps Script.<br>Alta y baja de usuarios todavía no están expuestas en este HTML. El cambio de contraseña del usuario activo ya funciona contra Apps Script.</div>';
+}
 function renderConfig(){
   $('dashTitle').value=cfg.dashTitle; $('weeklyTargetLine').value=cfg.weeklyTargetLine; $('bgColor').value=cfg.bgColor; $('panelColor').value=cfg.panelColor; $('textColor').value=cfg.textColor; $('kpiH').value=cfg.kpiH; $('fontScale').value=cfg.fontScale; $('useGoogleSheet').value=String(!!cfg.useGoogleSheet); $('googleAutoLoad').value=String(!!cfg.googleAutoLoad); $('googleSheetUrl').value=cfg.googleSheetUrl || '';
   Object.keys(DEFAULT_TITLES).forEach(k=>{const el=document.getElementById(k+'_in'); if(el) el.value=cfg.titles[k]||DEFAULT_TITLES[k]});
@@ -753,7 +792,7 @@ $('exportBtn').onclick=async ()=>{
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `dashboard_${mode}_v20_2.png`;
+      a.download = `dashboard_${mode}_v23.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -764,12 +803,76 @@ $('exportBtn').onclick=async ()=>{
     alert('Error al exportar PNG.');
   }
 };
-$('logoutBtn').onclick=()=>{currentUser=null; renderUserChip(); updateCfgButton(); $('loginBackdrop').classList.add('open'); $('loginBox').style.display='flex';};
-$('loginBtn').onclick=()=>{const u=$('loginUser').value.trim(); const p=$('loginPass').value; const found=users.find(x=>x.username===u && x.password===p); if(!found){$('loginMsg').textContent='Usuario o contraseña incorrectos'; return;} currentUser=found; $('loginBackdrop').classList.remove('open'); $('loginBox').style.display='none'; $('loginMsg').textContent=''; renderUserChip(); updateCfgButton();};
-$('guestBtn').onclick=()=>{currentUser={username:'visor',role:'viewer'}; $('loginBackdrop').classList.remove('open'); $('loginBox').style.display='none'; renderUserChip(); updateCfgButton();};
-$('addUserBtn').onclick=()=>{users.push({username:'nuevo',password:'1234',role:'viewer'}); renderUsers();};
-$('saveUsersBtn').onclick=()=>{const rows=[...document.querySelectorAll('#usersContainer .row4')]; users=rows.map(r=>({username:r.querySelector('[data-p="username"]').value.trim(),password:r.querySelector('[data-p="password"]').value,role:r.querySelector('[data-p="role"]').value})).filter(u=>u.username); saveUsers(); renderUsers(); alert('Usuarios guardados');};
-setVars(); renderConfig(); if(lastRendered) renderFromStored(); else renderDashboard(); renderUserChip(); updateCfgButton(); if(cfg.useGoogleSheet && cfg.googleAutoLoad && cfg.googleSheetUrl){ loadGoogleSheetData(false); }
+$('logoutBtn').onclick=()=>{currentUser=null; clearSession(); renderUserChip(); updateCfgButton(); $('loginBackdrop').classList.add('open'); $('loginBox').style.display='flex'; $('loginMsg').textContent='Sesión cerrada';};
+$('loginBtn').onclick=async ()=>{
+  const u=$('loginUser').value.trim();
+  const p=$('loginPass').value;
+  if(!u || !p){ $('loginMsg').textContent='Ingrese usuario y contraseña'; return; }
+  $('loginMsg').textContent='Validando acceso...';
+  try{
+    const res = await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify({action:'login',user:u,pass:p})});
+    const data = await res.json();
+    if(data.status!=='ok'){
+      $('loginMsg').textContent='Usuario o contraseña incorrectos';
+      return;
+    }
+    const role = String(data.role||'visor').toLowerCase()==='viewer' ? 'visor' : String(data.role||'visor').toLowerCase();
+    currentUser={username:u,role};
+    saveSession();
+    $('loginBackdrop').classList.remove('open');
+    $('loginBox').style.display='none';
+    $('loginMsg').textContent='';
+    renderUserChip();
+    updateCfgButton();
+  }catch(err){
+    console.error(err);
+    $('loginMsg').textContent='No se pudo conectar con Google Apps Script';
+  }
+};
+$('loginUser').addEventListener('keydown',e=>{ if(e.key==='Enter') $('loginBtn').click(); });
+$('loginPass').addEventListener('keydown',e=>{ if(e.key==='Enter') $('loginBtn').click(); });
+$('accountBtn').onclick=()=>openAccount();
+$('closeAccountBtn').onclick=()=>closeAccount();
+$('accountBackdrop').onclick=()=>closeAccount();
+$('saveAccountBtn').onclick=async ()=>{
+  if(!currentUser){ $('accountMsg').textContent='No hay sesión activa'; return; }
+  const currentPass=$('accountCurrentPass').value;
+  const newPass=$('accountPass').value;
+  const newPass2=$('accountPass2').value;
+  if(!currentPass || !newPass || !newPass2){ $('accountMsg').textContent='Complete todos los campos'; return; }
+  if(newPass.length < 4){ $('accountMsg').textContent='La nueva contraseña debe tener al menos 4 caracteres'; return; }
+  if(newPass !== newPass2){ $('accountMsg').textContent='La confirmación no coincide'; return; }
+  $('accountMsg').textContent='Actualizando contraseña...';
+  try{
+    const res = await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify({action:'changePassword',user:currentUser.username,currentPass:currentPass,newPass:newPass})});
+    const data = await res.json();
+    if(data.status==='ok'){
+      $('accountMsg').textContent=data.message || 'Contraseña actualizada correctamente';
+      $('accountCurrentPass').value='';
+      $('accountPass').value='';
+      $('accountPass2').value='';
+      setTimeout(()=>closeAccount(),900);
+    }else{
+      $('accountMsg').textContent=data.message || 'No se pudo cambiar la contraseña';
+    }
+  }catch(err){
+    console.error(err);
+    $('accountMsg').textContent='No se pudo conectar con Google Apps Script';
+  }
+};
+$('addUserBtn').onclick=()=>{};
+$('saveUsersBtn').onclick=()=>{};
+setVars(); renderConfig(); if(lastRendered) renderFromStored(); else renderDashboard();
+const savedSession = loadSession();
+if(savedSession && savedSession.username && savedSession.role){
+  currentUser=savedSession;
+  $('loginBackdrop').classList.remove('open');
+  $('loginBox').style.display='none';
+}else{
+  $('loginBackdrop').classList.add('open');
+  $('loginBox').style.display='flex';
+}
+renderUserChip(); updateCfgButton(); if(cfg.useGoogleSheet && cfg.googleAutoLoad && cfg.googleSheetUrl){ loadGoogleSheetData(false); }
 </script>
 </body>
 </html>

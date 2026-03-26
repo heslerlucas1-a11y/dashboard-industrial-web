@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Industrial Excel PRO V26 Full Seguridad Google</title>
+  <title>Dashboard Industrial Excel PRO V27 Roles Google</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -11,8 +11,8 @@
   <style>
     :root{--bg:#07131f;--panel:#0d2740;--text:#ecf6ff;--muted:#9fc2e3;--green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--orange:#f97316;--radius:18px;--kpiH:116px;--fontScale:.92;--topbarH:64px}
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;height:100%;background:radial-gradient(circle at top,#0d2944 0,#07131f 58%,#050d15 100%);color:var(--text);font-family:Segoe UI,Arial,sans-serif;overflow:hidden}
-    body{display:flex;flex-direction:column}
+    html,body{margin:0;padding:0;min-height:100%;background:radial-gradient(circle at top,#0d2944 0,#07131f 58%,#050d15 100%);color:var(--text);font-family:Segoe UI,Arial,sans-serif;overflow:auto}
+    body{display:flex;flex-direction:column;min-height:100vh}
     .topbar{height:var(--topbarH);display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;background:rgba(5,14,24,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(65,120,165,.35)}
     .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .btn,.file-label{border:none;border-radius:12px;padding:9px 13px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(135deg,#144d7a,#1d77b6)}
@@ -22,7 +22,7 @@
     .btn.red{background:linear-gradient(135deg,#991b1b,#ef4444)}
     .file-label input{display:none}
     .mini{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}
-    .shell{flex:1;min-height:0;padding:12px;overflow:auto}
+    .shell{flex:1 0 auto;min-height:0;padding:12px;overflow:visible}
     #captureArea{min-height:100%;display:grid;grid-template-columns:minmax(640px,1.22fr) minmax(520px,.98fr);gap:12px;align-items:start}
     .col{display:grid;gap:12px;min-height:0}
     .card{background:linear-gradient(180deg,rgba(16,51,82,.97),rgba(9,32,52,.97));border:1px solid rgba(72,133,182,.32);border-radius:var(--radius);box-shadow:0 0 28px rgba(56,189,248,.10);overflow:hidden}
@@ -53,7 +53,7 @@
     .week-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
     .week-box{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)} .week-box .w-label{font-size:calc(12px * var(--fontScale));text-transform:uppercase;color:var(--muted)} .week-box .w-value{font-size:calc(24px * var(--fontScale));font-weight:950;margin-top:7px}.week-box .w-miss{font-size:calc(12px * var(--fontScale));color:#ffcc99;margin-top:6px}
     .chart-wrap{padding:12px;height:100%;min-height:0}.chart-wrap canvas{width:100%!important;height:100%!important}
-    .cfg-backdrop,.login-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;z-index:39} .app-content{display:none} body.auth-ok .app-content{display:block} body.auth-locked{overflow:hidden} body.auth-locked #verticalExport{display:none !important}
+    .cfg-backdrop,.login-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;z-index:39;pointer-events:none} .login-backdrop.open{pointer-events:auto} .app-content{display:none} body.auth-ok .app-content{display:block} body.auth-ok{overflow:auto} body.auth-locked{overflow:hidden} body.auth-locked #verticalExport{display:none !important}
     .cfg{position:fixed;top:0;right:0;width:min(920px,97vw);height:100vh;background:linear-gradient(180deg,#0b1e31,#071421);border-left:1px solid rgba(72,133,182,.35);z-index:40;transform:translateX(100%);transition:.25s ease;overflow:auto}.cfg.open{transform:translateX(0)} .cfg-backdrop.open,.login-backdrop.open{display:block}
     .cfg-head{position:sticky;top:0;background:rgba(7,20,33,.96);padding:16px;border-bottom:1px solid rgba(72,133,182,.25);display:flex;justify-content:space-between;align-items:center}
     .cfg-body{padding:16px;display:grid;gap:18px}.cfg-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px}.cfg-card h3{margin:0 0 12px;font-size:16px}
@@ -130,10 +130,10 @@
   <div id="appContent" class="app-content" aria-hidden="true">
   <div class="topbar">
     <div class="toolbar">
-      <button class="btn" id="openCfg">⚙ Configuración</button>
-      <label class="file-label">📂 Cargar Excel <input type="file" id="fileInput" accept=".xlsx,.xls,.csv"></label>
-      <button class="btn secondary" id="reloadBtn">↻ Recargar Excel</button>
-      <button class="btn secondary" id="googleSyncBtn">☁ Sincronizar Google</button>
+      <button class="btn" id="openCfg" data-admin-only="true">⚙ Configuración</button>
+      <label class="file-label" id="fileLabel" data-admin-only="true">📂 Cargar Excel <input type="file" id="fileInput" accept=".xlsx,.xls,.csv"></label>
+      <button class="btn secondary" id="reloadBtn" data-admin-only="true">↻ Recargar Excel</button>
+      <button class="btn secondary" id="googleSyncBtn" data-admin-only="true">☁ Sincronizar Google</button>
       <button class="btn green" id="exportBtn">🖼 Exportar PNG</button>
       <select class="btn secondary" id="exportMode" style="appearance:none;min-width:170px;padding-right:34px"><option value="mobile">PNG Celular</option><option value="presentation">PNG Presentación</option><option value="desktop">PNG PC</option></select>
     </div>
@@ -180,7 +180,7 @@
         <h3>Hoja y estilo general</h3>
         <div class="row4">
           <div class="field"><label>Hoja a leer</label><select id="sheetSelect"></select></div>
-          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V26 Full Seguridad Google"></div>
+          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V27 Roles Google"></div>
           <div class="field"><label>Meta semanal (línea roja)</label><input id="weeklyTargetLine" type="number" value="700000"></div>
           <div class="field"><label>Escala fuente</label><input id="fontScale" type="number" min="0.70" max="1.20" step="0.02" value="0.92"></div>
           <div class="field"><label>Color fondo</label><input id="bgColor" type="color" value="#07131f"></div>
@@ -374,12 +374,12 @@ function normalizeCriticalMappings(target){
 }
 function loadCfg(){try{const s=JSON.parse(localStorage.getItem('dashboard_excel_pro_v26')||'null');if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
 function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v26',JSON.stringify(cfg))}
-function loadSession(){try{return JSON.parse(sessionStorage.getItem('dashboard_session_v26')||'null')}catch(e){return null}}
-function saveSession(){if(currentUser)sessionStorage.setItem('dashboard_session_v26',JSON.stringify(currentUser))}
-function clearSession(){sessionStorage.removeItem('dashboard_session_v26')}
+function loadSession(){try{return JSON.parse(sessionStorage.getItem('dashboard_session_v27')||'null')}catch(e){return null}}
+function saveSession(){if(currentUser)sessionStorage.setItem('dashboard_session_v27',JSON.stringify(currentUser))}
+function clearSession(){sessionStorage.removeItem('dashboard_session_v27')}
 
-function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v26')||'null')}catch(e){return null}}
-function saveRendered(obj){localStorage.setItem('dashboard_rendered_v26',JSON.stringify(obj)); lastRendered=obj}
+function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v27')||'null')}catch(e){return null}}
+function saveRendered(obj){localStorage.setItem('dashboard_rendered_v27',JSON.stringify(obj)); lastRendered=obj}
 
 
 let googleSheetGrid = null;
@@ -505,16 +505,31 @@ function stateInfo(v){const r=normalizePercent(v);if(r<-1)return {name:'Crítico
 function renderTitles(){Object.keys(cfg.titles).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=cfg.titles[id]})}
 function esc(s){return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
 function renderUserChip(){ $('userChip').textContent = currentUser ? `${currentUser.username} · ${currentUser.role}` : 'No autenticado'; }
-function updateCfgButton(){
-  $('openCfg').style.display = currentUser && currentUser.role==='admin' ? 'inline-block' : 'none';
+function updateRoleUi(){
+  const isAdmin = !!(currentUser && currentUser.role==='admin');
+  document.querySelectorAll('[data-admin-only="true"]').forEach(el=>{
+    el.style.display = isAdmin ? '' : 'none';
+  });
   $('accountBtn').style.display = currentUser ? 'inline-block' : 'none';
   $('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
+}
+async function autoSyncGoogleOnAccess(force=false){
+  if(!cfg.useGoogleSheet || !cfg.googleSheetUrl) return false;
+  try{
+    $('googleInfo').textContent='Sincronizando Google Sheets...';
+    return await loadGoogleSheetData(force);
+  }catch(err){
+    console.error(err);
+    $('googleInfo').textContent='Error Google Sheets';
+    return false;
+  }
 }
 function lockApp(message='Ingrese usuario y contraseña para visualizar el dashboard'){
   document.body.classList.remove('auth-ok');
   document.body.classList.add('auth-locked');
   $('appContent').setAttribute('aria-hidden','true');
   $('appContent').style.display='none';
+  $('loginBackdrop').style.display='block';
   $('loginBackdrop').classList.add('open');
   $('loginBox').style.display='flex';
   $('loginUser').focus();
@@ -529,11 +544,12 @@ function unlockApp(user, role){
   $('appContent').setAttribute('aria-hidden','false');
   $('appContent').style.display='block';
   $('loginBackdrop').classList.remove('open');
+  $('loginBackdrop').style.display='none';
   $('loginBox').style.display='none';
   $('loginMsg').textContent='Acceso correcto';
   $('loginPass').value='';
   renderUserChip();
-  updateCfgButton();
+  updateRoleUi();
   if(role!=='admin') closeCfg();
 }
 function openAccount(){
@@ -863,7 +879,7 @@ $('exportBtn').onclick=async ()=>{
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `dashboard_${mode}_v26.png`;
+      a.download = `dashboard_${mode}_v27.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -874,7 +890,7 @@ $('exportBtn').onclick=async ()=>{
     alert('Error al exportar PNG.');
   }
 };
-$('logoutBtn').onclick=()=>{currentUser=null; clearSession(); renderUserChip(); updateCfgButton(); lockApp('Sesión cerrada');};
+$('logoutBtn').onclick=()=>{currentUser=null; clearSession(); renderUserChip(); updateRoleUi(); lockApp('Sesión cerrada');};
 $('loginBtn').onclick=async ()=>{
   const u=$('loginUser').value.trim();
   const p=$('loginPass').value;
@@ -890,6 +906,7 @@ $('loginBtn').onclick=async ()=>{
     currentUser={username:String(data.user||u).trim(),role};
     saveSession();
     unlockApp(currentUser.username,currentUser.role);
+    await autoSyncGoogleOnAccess(true);
   }catch(err){
     console.error(err);
     $('loginMsg').textContent='No se pudo validar acceso con Apps Script.';
@@ -932,7 +949,8 @@ setVars(); renderConfig(); if(lastRendered) renderFromStored(); else renderDashb
 clearSession();
 currentUser=null;
 renderUserChip();
-updateCfgButton();
+updateRoleUi();
+setTimeout(()=>{ autoSyncGoogleOnAccess(false); }, 150);
 lockApp('Ingrese usuario y contraseña para visualizar el dashboard');
 </script>
 </body>

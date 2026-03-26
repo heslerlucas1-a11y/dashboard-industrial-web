@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Industrial Excel PRO V30 Estable</title>
+  <title>Dashboard Industrial Excel PRO V30.2</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -124,7 +124,12 @@
       .topbar{height:auto;flex-wrap:wrap}
       html,body{overflow-y:auto}
     }
-  </style>
+  
+.config-msg{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px;display:none}
+.config-msg.ok{display:block;background:rgba(30,180,90,.18);border:1px solid rgba(30,180,90,.35);color:#baf3c8}
+.config-msg.warn{display:block;background:rgba(234,179,8,.14);border:1px solid rgba(234,179,8,.28);color:#fde68a}
+.config-msg.err{display:block;background:rgba(220,38,38,.14);border:1px solid rgba(220,38,38,.28);color:#fecaca}
+</style>
 </head>
 <body class="auth-locked">
   <div id="appContent" class="app-content" aria-hidden="true">
@@ -180,7 +185,7 @@
         <h3>Hoja y estilo general</h3>
         <div class="row4">
           <div class="field"><label>Hoja a leer</label><select id="sheetSelect"></select></div>
-          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V30 Estable"></div>
+          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V30.2"></div>
           <div class="field"><label>Meta semanal (línea roja)</label><input id="weeklyTargetLine" type="number" value="700000"></div>
           <div class="field"><label>Escala fuente</label><input id="fontScale" type="number" min="0.70" max="1.20" step="0.02" value="0.92"></div>
           <div class="field"><label>Color fondo</label><input id="bgColor" type="color" value="#07131f"></div>
@@ -204,6 +209,16 @@
         <div class="field"><label>URL publicada</label><input id="googleSheetUrl" placeholder="Pegá acá la URL pubhtml o CSV"></div>
         <div class="field"><label>URL Apps Script</label><input id="appScriptUrl" placeholder="Pegá acá la URL /exec del Apps Script"></div>
         <div class="small">Acepta el link publicado tipo <b>pubhtml</b> y lo convierte automáticamente a CSV. Se leen la fila 1 como encabezados y la fila 2 como valores, manteniendo tus celdas A2, B2, C2, etc. La URL Apps Script te permite cambiar backend sin tocar el código HTML.</div>
+      </div>
+
+      <div class="cfg-card">
+        <h3>Criterios de rendimiento P2</h3>
+        <div class="row3">
+          <div class="field"><label>Rend. OK mínimo</label><input id="perfOkMin" type="number" step="0.1"></div>
+          <div class="field"><label>Rend. OK máximo</label><input id="perfOkMax" type="number" step="0.1"></div>
+          <div class="field"><label>Rend. crítico mínimo</label><input id="perfCritMin" type="number" step="0.1"></div>
+        </div>
+        <div class="small">Lógica aplicada: entre OK mínimo y OK máximo = <b>Óptimo</b>. Menor a crítico mínimo = <b>Crítico</b>. Entre ambos valores = <b>Atención</b>.</div>
       </div>
 
       <div class="cfg-card">
@@ -257,7 +272,7 @@
         </div>
       </div>
 
-      <div class="row2"><button class="btn green" id="saveCfg">Guardar configuración</button><button class="btn secondary" id="resetCfg">Restablecer</button></div>
+      <div id="configMsg" class="config-msg"></div><div class="row2"><button class="btn green" id="saveCfg">Guardar configuración</button><button class="btn secondary" id="resetCfg">Restablecer</button></div>
     </div>
   </aside>
 
@@ -317,7 +332,7 @@ const DEFAULT_MAPPING={
   sem3:{label:'Producción semana 3',title:'Semana 3',cell:'P2',manual:'',note:'Acumulado',fmt:'num'},
   sem4:{label:'Producción semana 4',title:'Semana 4',cell:'Q2',manual:'',note:'Acumulado',fmt:'num'}
 };
-const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V30 Estable',exportBrandText:'LAHARRAGUE CHODORGE',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',appScriptUrl:'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec',mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
+const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V30.2',exportBrandText:'LAHARRAGUE CHODORGE',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',perfOkMin:-1,perfOkMax:1,perfCritMin:-1.6,titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',appScriptUrl:'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec',mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
 function getWebAppUrl(){ return String((cfg && cfg.appScriptUrl) || DEFAULT_CFG.appScriptUrl || '').trim(); }
 
 function jsonpRequest(params){
@@ -470,6 +485,7 @@ async function loadGoogleSheetData(force=false){
 
 function setVars(){document.documentElement.style.setProperty('--bg',cfg.bgColor);document.documentElement.style.setProperty('--panel',cfg.panelColor);document.documentElement.style.setProperty('--text',cfg.textColor);document.documentElement.style.setProperty('--kpiH',cfg.kpiH+'px');document.documentElement.style.setProperty('--fontScale',cfg.fontScale)}
 function normalizeNumber(v){if(v===null||v===undefined||v==='')return 0;if(typeof v==='number')return v;let s=String(v).trim().replace(/%/g,'');if(/^\d{4}-\d{2}-\d{2}/.test(s)||/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(s))return 0;if(/\d+\.\d{3}(?:\.\d{3})*,\d+/.test(s)||/\d{1,3}(?:\.\d{3})+(?:,\d+)?/.test(s))s=s.replace(/\./g,'').replace(',','.');else if(/\d+,\d+/.test(s)&&!/\d+\.\d+/.test(s))s=s.replace(',','.');s=s.replace(/[^0-9.-]/g,'');const n=Number(s);return isNaN(n)?0:n}
+function fmtSigned(v){const n=Number(v||0); return (n>0?'+':'') + String(n).replace('.',',');}
 function normalizePercent(v){if(v===null||v===undefined||v==='')return 0;if(typeof v==='number'){return Math.abs(v)<=1? v*100 : v;} let s=String(v).trim(); if(s.includes('%')) return normalizeNumber(s); let n=normalizeNumber(s); return Math.abs(n)<=1? n*100 : n;}
 function formatNum(n,d=0){return Number(n||0).toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function formatPct(n,d=1){return `${Number(n||0).toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d})}%`}
@@ -516,7 +532,7 @@ function getWeekTitles(){
 function weekLabelPreviewText(){ return getWeekTitles().join(' | '); }
 function numMetric(key){const m=cfg.mapping[key]; const raw=readMetric(key); return m&&m.fmt==='pct' ? normalizePercent(raw) : normalizeNumber(raw)}
 function displayMetric(key){const m=cfg.mapping[key]; if(!m) return ''; const raw=readMetric(key); if(m.fmt==='date')return formatDate(raw); if(m.fmt==='pct')return formatPct(normalizePercent(raw),m.dec??1); return formatNum(normalizeNumber(raw),m.dec??0)}
-function stateInfo(v){const r=normalizePercent(v);if(r<-1)return {name:'Crítico',cls:'red',text:'El rendimiento es menor que -1 y requiere revisión.'};if(r>=0)return {name:'Óptimo',cls:'green',text:'El rendimiento está bien y no requiere intervención.'};return {name:'Atención',cls:'yellow',text:'El rendimiento está entre -1 y 0. Conviene seguirlo.'}}
+function stateInfo(v){const r=normalizePercent(v); const okMin=Number(cfg.perfOkMin ?? DEFAULT_CFG.perfOkMin); const okMax=Number(cfg.perfOkMax ?? DEFAULT_CFG.perfOkMax); const critMin=Number(cfg.perfCritMin ?? DEFAULT_CFG.perfCritMin); if(r < critMin) return {name:'Crítico',cls:'red',text:`El rendimiento es menor que ${fmtSigned(critMin)} y requiere revisión.`}; if(r >= okMin && r <= okMax) return {name:'Óptimo',cls:'green',text:`El rendimiento está entre ${fmtSigned(okMin)} y ${fmtSigned(okMax)} y se considera correcto.`}; return {name:'Atención',cls:'yellow',text:`El rendimiento está fuera del rango óptimo pero todavía no llegó al nivel crítico (${fmtSigned(critMin)}).`};}
 function renderTitles(){Object.keys(cfg.titles).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=cfg.titles[id]})}
 function esc(s){return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
 function renderUserChip(){ $('userChip').textContent = currentUser ? `${currentUser.username} · ${currentUser.role}` : 'No autenticado'; }
@@ -657,7 +673,7 @@ function collectUsersFromPanel(){
   })).filter(u=>u.username);
 }
 function renderConfig(){
-  $('dashTitle').value=cfg.dashTitle; $('weeklyTargetLine').value=cfg.weeklyTargetLine; $('exportBrandText').value=cfg.exportBrandText||'LAHARRAGUE CHODORGE'; $('bgColor').value=cfg.bgColor; $('panelColor').value=cfg.panelColor; $('textColor').value=cfg.textColor; $('kpiH').value=cfg.kpiH; $('fontScale').value=cfg.fontScale; $('useGoogleSheet').value=String(!!cfg.useGoogleSheet); $('googleAutoLoad').value=String(!!cfg.googleAutoLoad); $('googleSheetUrl').value=cfg.googleSheetUrl || ''; $('appScriptUrl').value=cfg.appScriptUrl || DEFAULT_CFG.appScriptUrl;
+  $('dashTitle').value=cfg.dashTitle; $('weeklyTargetLine').value=cfg.weeklyTargetLine; $('exportBrandText').value=cfg.exportBrandText||'LAHARRAGUE CHODORGE'; $('bgColor').value=cfg.bgColor; $('panelColor').value=cfg.panelColor; $('textColor').value=cfg.textColor; $('kpiH').value=cfg.kpiH; $('fontScale').value=cfg.fontScale; $('useGoogleSheet').value=String(!!cfg.useGoogleSheet); $('googleAutoLoad').value=String(!!cfg.googleAutoLoad); $('googleSheetUrl').value=cfg.googleSheetUrl || ''; $('appScriptUrl').value=cfg.appScriptUrl || DEFAULT_CFG.appScriptUrl; $('perfOkMin').value=cfg.perfOkMin ?? DEFAULT_CFG.perfOkMin; $('perfOkMax').value=cfg.perfOkMax ?? DEFAULT_CFG.perfOkMax; $('perfCritMin').value=cfg.perfCritMin ?? DEFAULT_CFG.perfCritMin; if($('configMsg')){$('configMsg').className='config-msg'; $('configMsg').textContent='';}
   Object.keys(DEFAULT_TITLES).forEach(k=>{const el=document.getElementById(k+'_in'); if(el) el.value=cfg.titles[k]||DEFAULT_TITLES[k]});
   $('weekLabel1').value=cfg.weekLabels[0]||'Semana 1'; $('weekLabel2').value=cfg.weekLabels[1]||'Semana 2'; $('weekLabel3').value=cfg.weekLabels[2]||'Semana 3'; $('weekLabel4').value=cfg.weekLabels[3]||'Semana 4'; $('weekLabelsAuto').value=String(!!cfg.weekLabelsAuto); $('weekLabelStartCell').value=cfg.weekLabelStartCell||''; $('weekLabelPreview').value=weekLabelPreviewText();
   $('sheetSelect').innerHTML=''; if(workbook){workbook.SheetNames.forEach(n=>{const op=document.createElement('option'); op.value=n; op.textContent=n; if(n===cfg.selectedSheet) op.selected=true; $('sheetSelect').appendChild(op);});} else {const op=document.createElement('option'); op.value=''; op.textContent='Sin libro cargado'; $('sheetSelect').appendChild(op);}
@@ -691,6 +707,9 @@ function applyConfigFromPanel(){
   cfg.googleAutoLoad=$('googleAutoLoad').value==='true';
   cfg.googleSheetUrl=$('googleSheetUrl').value.trim();
   cfg.appScriptUrl=$('appScriptUrl').value.trim() || DEFAULT_CFG.appScriptUrl;
+  cfg.perfOkMin=Number($('perfOkMin').value || DEFAULT_CFG.perfOkMin);
+  cfg.perfOkMax=Number($('perfOkMax').value || DEFAULT_CFG.perfOkMax);
+  cfg.perfCritMin=Number($('perfCritMin').value || DEFAULT_CFG.perfCritMin);
   Object.keys(DEFAULT_TITLES).forEach(k=>{const el=document.getElementById(k+'_in'); if(el) cfg.titles[k]=el.value||DEFAULT_TITLES[k]});
   cfg.weekLabels=[$('weekLabel1').value||'Semana 1',$('weekLabel2').value||'Semana 2',$('weekLabel3').value||'Semana 3',$('weekLabel4').value||'Semana 4'];
   cfg.weekLabelsAuto=$('weekLabelsAuto').value==='true';
@@ -928,7 +947,7 @@ function renderFromStored(){
 }
 
 $('openCfg').onclick=()=>openCfg(); $('closeCfg').onclick=()=>closeCfg(); $('cfgBackdrop').onclick=()=>closeCfg();
-$('saveCfg').onclick=async ()=>{ try{ applyConfigFromPanel(); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ await autoSyncGoogleOnAccess(true); } renderDashboard(); $('usersMsg').textContent=''; closeCfg(); setTimeout(()=>{ alert('Configuración guardada correctamente.'); }, 50); }catch(err){ console.error(err); alert('No se pudo guardar la configuración. Revisá la consola.'); } };
+$('saveCfg').onclick=async ()=>{ const msg=$('configMsg'); try{ if(msg){msg.className='config-msg'; msg.textContent='';} applyConfigFromPanel(); let syncWarn=''; if(cfg.useGoogleSheet && cfg.googleAutoLoad){ const ok = await autoSyncGoogleOnAccess(true); if(!ok) syncWarn=' Configuración guardada, pero no se pudo resincronizar Google en este momento.'; } renderDashboard(); $('usersMsg').textContent=''; if(msg){ msg.className='config-msg ' + (syncWarn ? 'warn' : 'ok'); msg.textContent = syncWarn || 'Configuración guardada correctamente.'; } setTimeout(()=>{ closeCfg(); if(msg){msg.className='config-msg'; msg.textContent='';} }, 900); }catch(err){ console.error(err); if(msg){ msg.className='config-msg err'; msg.textContent='No se pudo guardar la configuración. Revisá la consola.'; } } };
 $('addUserBtn').onclick=()=>{ if(!window.userAdminRows) window.userAdminRows=[]; window.userAdminRows.push({username:'',password:'',role:'visor',active:'SI',locked:false}); renderUsers(); };
 $('saveUsersBtn').onclick=async ()=>{ const users=collectUsersFromPanel(); if(!users.length){ $('usersMsg').textContent='No hay usuarios para guardar.'; return; } if(!currentUser || currentUser.role!=='admin'){ $('usersMsg').textContent='Solo un administrador puede guardar usuarios.'; return; } $('usersMsg').textContent='Guardando usuarios en Apps Script...'; try{ const data = await jsonpRequest({action:'saveUsers', user: currentUser.username, pass: currentUser.password || '', users: JSON.stringify(users)}); if(data && data.status==='ok'){ $('usersMsg').textContent='Usuarios guardados correctamente.'; await refreshUsersFromBackend(); } else { $('usersMsg').textContent=(data&&data.message)||'No se pudieron guardar los usuarios.'; } }catch(err){ console.error(err); $('usersMsg').textContent='Error al guardar usuarios. Revisá Apps Script.'; } };
 $('restoreMappingBtn').onclick=()=>{
@@ -945,6 +964,7 @@ $('resetCfg').onclick=()=>{
   saveCfgLS();
   renderConfig();
   renderDashboard();
+  if($('configMsg')){ $('configMsg').className='config-msg ok'; $('configMsg').textContent='Configuración restablecida.'; setTimeout(()=>{ $('configMsg').className='config-msg'; $('configMsg').textContent=''; }, 1000);}
 };
 $('reloadBtn').onclick=()=>$('fileInput').click(); $('googleSyncBtn').onclick=()=>loadGoogleSheetData(true); $('fileInput').addEventListener('click',e=>{e.target.value='';}); $('fileInput').addEventListener('change',async e=>{const file=e.target.files[0]; if(!file)return; const buf=await file.arrayBuffer(); workbook=XLSX.read(buf,{type:'array'}); googleSheetGrid=null; if(!cfg.selectedSheet || !workbook.SheetNames.includes(cfg.selectedSheet)) cfg.selectedSheet=workbook.SheetNames[0]; $(`fileInfo`).textContent=`${file.name} · modificado ${new Date(file.lastModified).toLocaleString('es-AR')} · hoja ${cfg.selectedSheet}`; $('googleInfo').textContent='Fuente actual: Excel local'; saveCfgLS(); renderConfig(); renderDashboard();});
 $('exportBtn').onclick=async ()=>{

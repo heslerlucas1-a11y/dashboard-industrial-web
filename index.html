@@ -309,6 +309,20 @@ const DEFAULT_MAPPING={
 };
 const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V21 Google',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbwlXprgSY19BieEdgHZMACD0hnTAq44GfmKyKv3Tprb-TP72fZ43xD40x4F9xJzHNRA/exec';
+
+async function parseBackendResponse(res){
+  const raw = await res.text();
+  console.log('Respuesta backend:', raw);
+  let data;
+  try{
+    data = JSON.parse(raw);
+  }catch(parseErr){
+    console.error('Respuesta no es JSON válido:', raw);
+    throw new Error('Respuesta inválida del servidor');
+  }
+  return data;
+}
+
 let cfg=loadCfg(), workbook=null, weekChart=null, currentUser=null;
 let lastRendered=loadRendered();
 const $=id=>document.getElementById(id);
@@ -811,7 +825,7 @@ $('loginBtn').onclick=async ()=>{
   $('loginMsg').textContent='Validando acceso...';
   try{
     const res = await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify({action:'login',user:u,pass:p})});
-    const data = await res.json();
+    const data = await parseBackendResponse(res);
     if(data.status!=='ok'){
       $('loginMsg').textContent='Usuario o contraseña incorrectos';
       return;
@@ -826,7 +840,7 @@ $('loginBtn').onclick=async ()=>{
     updateCfgButton();
   }catch(err){
     console.error(err);
-    $('loginMsg').textContent='No se pudo conectar con Google Apps Script';
+    $('loginMsg').textContent='Error de respuesta del servidor. Presione F12 y revise Console.';
   }
 };
 $('loginUser').addEventListener('keydown',e=>{ if(e.key==='Enter') $('loginBtn').click(); });
@@ -845,7 +859,7 @@ $('saveAccountBtn').onclick=async ()=>{
   $('accountMsg').textContent='Actualizando contraseña...';
   try{
     const res = await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify({action:'changePassword',user:currentUser.username,currentPass:currentPass,newPass:newPass})});
-    const data = await res.json();
+    const data = await parseBackendResponse(res);
     if(data.status==='ok'){
       $('accountMsg').textContent=data.message || 'Contraseña actualizada correctamente';
       $('accountCurrentPass').value='';
@@ -857,7 +871,7 @@ $('saveAccountBtn').onclick=async ()=>{
     }
   }catch(err){
     console.error(err);
-    $('accountMsg').textContent='No se pudo conectar con Google Apps Script';
+    $('accountMsg').textContent='Error de respuesta del servidor. Presione F12 y revise Console.';
   }
 };
 $('addUserBtn').onclick=()=>{};

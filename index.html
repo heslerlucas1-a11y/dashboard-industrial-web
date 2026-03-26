@@ -623,7 +623,7 @@ async function refreshUsersFromBackend(){
   if(!currentUser || currentUser.role!=='admin') return;
   if(msg) msg.textContent='Cargando usuarios desde Apps Script...';
   try{
-    const data = await jsonpRequest({action:'listUsers'});
+    const data = await jsonpRequest({action:'listUsers', user: currentUser.username, pass: currentUser.password || ''});
     if(data && data.status==='ok' && Array.isArray(data.users)){
       window.userAdminRows = data.users.map(u=>({
         username:String(u.username||''),
@@ -928,9 +928,9 @@ function renderFromStored(){
 }
 
 $('openCfg').onclick=()=>openCfg(); $('closeCfg').onclick=()=>closeCfg(); $('cfgBackdrop').onclick=()=>closeCfg();
-$('saveCfg').onclick=async ()=>{ applyConfigFromPanel(); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ await autoSyncGoogleOnAccess(true); } renderDashboard(); closeCfg(); };
+$('saveCfg').onclick=async ()=>{ try{ applyConfigFromPanel(); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ await autoSyncGoogleOnAccess(true); } renderDashboard(); $('usersMsg').textContent=''; closeCfg(); setTimeout(()=>{ alert('Configuración guardada correctamente.'); }, 50); }catch(err){ console.error(err); alert('No se pudo guardar la configuración. Revisá la consola.'); } };
 $('addUserBtn').onclick=()=>{ if(!window.userAdminRows) window.userAdminRows=[]; window.userAdminRows.push({username:'',password:'',role:'visor',active:'SI',locked:false}); renderUsers(); };
-$('saveUsersBtn').onclick=async ()=>{ const users=collectUsersFromPanel(); if(!users.length){ $('usersMsg').textContent='No hay usuarios para guardar.'; return; } $('usersMsg').textContent='Guardando usuarios en Apps Script...'; try{ const payload = btoa(unescape(encodeURIComponent(JSON.stringify(users)))); const data = await jsonpRequest({action:'saveUsers', payload}); if(data && data.status==='ok'){ $('usersMsg').textContent='Usuarios guardados correctamente.'; await refreshUsersFromBackend(); } else { $('usersMsg').textContent=(data&&data.message)||'No se pudieron guardar los usuarios.'; } }catch(err){ console.error(err); $('usersMsg').textContent='Error al guardar usuarios. Revisá Apps Script V29.'; } };
+$('saveUsersBtn').onclick=async ()=>{ const users=collectUsersFromPanel(); if(!users.length){ $('usersMsg').textContent='No hay usuarios para guardar.'; return; } if(!currentUser || currentUser.role!=='admin'){ $('usersMsg').textContent='Solo un administrador puede guardar usuarios.'; return; } $('usersMsg').textContent='Guardando usuarios en Apps Script...'; try{ const data = await jsonpRequest({action:'saveUsers', user: currentUser.username, pass: currentUser.password || '', users: JSON.stringify(users)}); if(data && data.status==='ok'){ $('usersMsg').textContent='Usuarios guardados correctamente.'; await refreshUsersFromBackend(); } else { $('usersMsg').textContent=(data&&data.message)||'No se pudieron guardar los usuarios.'; } }catch(err){ console.error(err); $('usersMsg').textContent='Error al guardar usuarios. Revisá Apps Script.'; } };
 $('restoreMappingBtn').onclick=()=>{
   if(!confirm('¿Restaurar el mapeo recomendado? Esto reemplaza solo las celdas, manuales y notas del bloque de mapeo.')) return;
   cfg.mapping = deep(DEFAULT_MAPPING);
@@ -1022,7 +1022,7 @@ $('loginBtn').onclick=async ()=>{
       return;
     }
     const role = String(data.role||'visor').toLowerCase()==='viewer' ? 'visor' : String(data.role||'visor').toLowerCase();
-    currentUser={username:String(data.user||u).trim(),role};
+    currentUser={username:String(data.user||u).trim(),role,password:p};
     saveSession();
     unlockApp(currentUser.username,currentUser.role);
     bumpSessionTimer();

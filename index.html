@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Industrial Excel PRO V24 Google</title>
+  <title>Dashboard Industrial Excel PRO V25 Full Seguridad Google</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -180,7 +180,7 @@
         <h3>Hoja y estilo general</h3>
         <div class="row4">
           <div class="field"><label>Hoja a leer</label><select id="sheetSelect"></select></div>
-          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V24 Google"></div>
+          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V25 Full Seguridad Google"></div>
           <div class="field"><label>Meta semanal (línea roja)</label><input id="weeklyTargetLine" type="number" value="700000"></div>
           <div class="field"><label>Escala fuente</label><input id="fontScale" type="number" min="0.70" max="1.20" step="0.02" value="0.92"></div>
           <div class="field"><label>Color fondo</label><input id="bgColor" type="color" value="#07131f"></div>
@@ -257,7 +257,7 @@
   <div class="login-backdrop open" id="loginBackdrop"></div>
   <div class="login-box" id="loginBox">
     <div class="login-card">
-      <h3 style="margin-top:0">Ingreso al dashboard</h3><div class="small" style="margin:0 0 10px 0">El tablero queda oculto hasta validar usuario y contraseña.</div>
+      <h3 style="margin-top:0">Ingreso al dashboard</h3><div class="small" style="margin:0 0 10px 0">El tablero queda totalmente oculto hasta validar usuario y contraseña contra Apps Script.</div>
       <div class="field"><label>Usuario</label><input id="loginUser"></div>
       <div class="field"><label>Contraseña</label><input id="loginPass" type="password"></div>
       <div class="row2">
@@ -344,14 +344,14 @@ function normalizeCriticalMappings(target){
   if(up(target.mapping.actualSem.manual)==='' && up(target.mapping.actualSem.cell)!=='S2') target.mapping.actualSem.cell='S2';
   return target;
 }
-function loadCfg(){try{const s=JSON.parse(localStorage.getItem('dashboard_excel_pro_v24')||'null');if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
-function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v24',JSON.stringify(cfg))}
-function loadSession(){try{return JSON.parse(localStorage.getItem('dashboard_session_v24')||'null')}catch(e){return null}}
-function saveSession(){if(currentUser)localStorage.setItem('dashboard_session_v24',JSON.stringify(currentUser))}
-function clearSession(){localStorage.removeItem('dashboard_session_v24')}
+function loadCfg(){try{const s=JSON.parse(localStorage.getItem('dashboard_excel_pro_v25')||'null');if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
+function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v25',JSON.stringify(cfg))}
+function loadSession(){try{return JSON.parse(sessionStorage.getItem('dashboard_session_v25')||'null')}catch(e){return null}}
+function saveSession(){if(currentUser)sessionStorage.setItem('dashboard_session_v25',JSON.stringify(currentUser))}
+function clearSession(){sessionStorage.removeItem('dashboard_session_v25')}
 
-function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v24')||'null')}catch(e){return null}}
-function saveRendered(obj){localStorage.setItem('dashboard_rendered_v24',JSON.stringify(obj)); lastRendered=obj}
+function loadRendered(){try{return JSON.parse(localStorage.getItem('dashboard_rendered_v25')||'null')}catch(e){return null}}
+function saveRendered(obj){localStorage.setItem('dashboard_rendered_v25',JSON.stringify(obj)); lastRendered=obj}
 
 
 let googleSheetGrid = null;
@@ -481,6 +481,32 @@ function updateCfgButton(){
   $('openCfg').style.display = currentUser && currentUser.role==='admin' ? 'inline-block' : 'none';
   $('accountBtn').style.display = currentUser ? 'inline-block' : 'none';
   $('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
+}
+function lockApp(message='Ingrese usuario y contraseña para visualizar el dashboard'){
+  document.body.classList.remove('auth-ok');
+  document.body.classList.add('auth-locked');
+  $('appContent').setAttribute('aria-hidden','true');
+  $('appContent').style.display='none';
+  $('loginBackdrop').classList.add('open');
+  $('loginBox').style.display='flex';
+  $('loginUser').focus();
+  $('loginPass').value='';
+  $('loginMsg').textContent=message;
+  closeAccount();
+  closeCfg();
+}
+function unlockApp(user, role){
+  document.body.classList.remove('auth-locked');
+  document.body.classList.add('auth-ok');
+  $('appContent').setAttribute('aria-hidden','false');
+  $('appContent').style.display='block';
+  $('loginBackdrop').classList.remove('open');
+  $('loginBox').style.display='none';
+  $('loginMsg').textContent='Acceso correcto';
+  $('loginPass').value='';
+  renderUserChip();
+  updateCfgButton();
+  if(role!=='admin') closeCfg();
 }
 function openAccount(){
   if(!currentUser){ return; }
@@ -834,14 +860,12 @@ $('loginBtn').onclick=async ()=>{
       return;
     }
     const role = String(data.role||'visor').toLowerCase()==='viewer' ? 'visor' : String(data.role||'visor').toLowerCase();
-    currentUser={username:u,role};
+    currentUser={username:String(data.user||u).trim(),role};
     saveSession();
-    renderUserChip();
-    updateCfgButton();
-    unlockApp();
+    unlockApp(currentUser.username,currentUser.role);
   }catch(err){
     console.error(err);
-    $('loginMsg').textContent='Error de respuesta del servidor. Presione F12 y revise Console.';
+    $('loginMsg').textContent='Error de respuesta del servidor. Revise Apps Script y F12 > Console.';
   }
 };
 $('loginUser').addEventListener('keydown',e=>{ if(e.key==='Enter') $('loginBtn').click(); });
@@ -849,6 +873,7 @@ $('loginPass').addEventListener('keydown',e=>{ if(e.key==='Enter') $('loginBtn')
 $('accountBtn').onclick=()=>openAccount();
 $('closeAccountBtn').onclick=()=>closeAccount();
 $('accountBackdrop').onclick=()=>closeAccount();
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeAccount(); closeCfg(); } });
 $('saveAccountBtn').onclick=async ()=>{
   if(!currentUser){ $('accountMsg').textContent='No hay sesión activa'; return; }
   const currentPass=$('accountCurrentPass').value;

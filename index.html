@@ -4,70 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Industrial Excel PRO V30.3</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js">
-function forceResetAppScriptUrl(){
-  try {
-    localStorage.setItem('appScriptUrl', 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec');
-    const cfg = JSON.parse(localStorage.getItem('config_dashboard') || '{}');
-    cfg.appScriptUrl = 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec';
-    localStorage.setItem('config_dashboard', JSON.stringify(cfg));
-    sessionStorage.clear();
-    alert('URL de Apps Script restablecida. Ahora recargá la página con Ctrl + F5.');
-  } catch(e) {
-    console.error(e);
-    alert('No se pudo restablecer automáticamente la URL.');
-  }
-}
-
-</script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js">
-function forceResetAppScriptUrl(){
-  try {
-    localStorage.setItem('appScriptUrl', 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec');
-    const cfg = JSON.parse(localStorage.getItem('config_dashboard') || '{}');
-    cfg.appScriptUrl = 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec';
-    localStorage.setItem('config_dashboard', JSON.stringify(cfg));
-    sessionStorage.clear();
-    alert('URL de Apps Script restablecida. Ahora recargá la página con Ctrl + F5.');
-  } catch(e) {
-    console.error(e);
-    alert('No se pudo restablecer automáticamente la URL.');
-  }
-}
-
-</script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js">
-function forceResetAppScriptUrl(){
-  try {
-    localStorage.setItem('appScriptUrl', 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec');
-    const cfg = JSON.parse(localStorage.getItem('config_dashboard') || '{}');
-    cfg.appScriptUrl = 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec';
-    localStorage.setItem('config_dashboard', JSON.stringify(cfg));
-    sessionStorage.clear();
-    alert('URL de Apps Script restablecida. Ahora recargá la página con Ctrl + F5.');
-  } catch(e) {
-    console.error(e);
-    alert('No se pudo restablecer automáticamente la URL.');
-  }
-}
-
-</script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
-function forceResetAppScriptUrl(){
-  try {
-    localStorage.setItem('appScriptUrl', 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec');
-    const cfg = JSON.parse(localStorage.getItem('config_dashboard') || '{}');
-    cfg.appScriptUrl = 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec';
-    localStorage.setItem('config_dashboard', JSON.stringify(cfg));
-    sessionStorage.clear();
-    alert('URL de Apps Script restablecida. Ahora recargá la página con Ctrl + F5.');
-  } catch(e) {
-    console.error(e);
-    alert('No se pudo restablecer automáticamente la URL.');
-  }
-}
-
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     :root{--bg:#07131f;--panel:#0d2740;--text:#ecf6ff;--muted:#9fc2e3;--green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--orange:#f97316;--radius:18px;--kpiH:116px;--fontScale:.92;--topbarH:64px}
     *{box-sizing:border-box}
@@ -223,7 +163,7 @@ function forceResetAppScriptUrl(){
       </div>
       <div class="col right-top">
         <div class="card pad"><div class="section-title" id="titleSemanal">Producción semanal</div><div class="week-grid" id="weekGrid"></div></div>
-        <div class="card chart-wrap"><canvas id="weekChart"></canvas>  <div style="margin-top:10px;text-align:center;"><button type="button" onclick="forceResetAppScriptUrl()" style="background:#44506a;width:auto;padding:8px 14px;border-radius:8px;">Restablecer URL Apps Script</button></div>
+        <div class="card chart-wrap"><canvas id="weekChart"></canvas></div>
       </div>
     </div>
   </div>
@@ -1226,21 +1166,41 @@ renderUserChip();
 updateRoleUi();
 setTimeout(()=>{ autoSyncGoogleOnAccess(false); }, 150);
 if(currentUser){ loadConfigFromBackend().finally(()=>{ unlockApp(currentUser.username,currentUser.role); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ setTimeout(()=>autoSyncGoogleOnAccess(false), 400); } }); } else { lockApp('Ingrese usuario y contraseña para visualizar el dashboard'); }
-
-function forceResetAppScriptUrl(){
-  try {
-    localStorage.setItem('appScriptUrl', 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec');
-    const cfg = JSON.parse(localStorage.getItem('config_dashboard') || '{}');
-    cfg.appScriptUrl = 'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec';
-    localStorage.setItem('config_dashboard', JSON.stringify(cfg));
-    sessionStorage.clear();
-    alert('URL de Apps Script restablecida. Ahora recargá la página con Ctrl + F5.');
-  } catch(e) {
-    console.error(e);
-    alert('No se pudo restablecer automáticamente la URL.');
-  }
-}
-
 </script>
+
+<script>
+(function(){
+  const FALLBACK_APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec";
+  try {
+    if (!localStorage.getItem('appScriptUrl')) {
+      localStorage.setItem('appScriptUrl', FALLBACK_APP_SCRIPT_URL);
+    }
+  } catch(e) {}
+
+  window.forceResetAppScriptUrl = function(){
+    try {
+      localStorage.setItem('appScriptUrl', FALLBACK_APP_SCRIPT_URL);
+      sessionStorage.clear();
+      alert('URL de Apps Script restablecida. Ahora hacé Ctrl + F5 y volvé a ingresar.');
+    } catch(e) {
+      console.error(e);
+      alert('No se pudo restablecer la URL.');
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const loginBox = document.getElementById('loginBox');
+    if(loginBox && !document.getElementById('resetAppScriptUrlBtn')) {
+      const wrap = document.createElement('div');
+      wrap.style.marginTop = '10px';
+      wrap.style.textAlign = 'center';
+      wrap.innerHTML = '<button id="resetAppScriptUrlBtn" type="button" style="background:#44506a;border:none;color:#fff;padding:8px 14px;border-radius:10px;cursor:pointer;">Restablecer URL Apps Script</button>';
+      loginBox.appendChild(wrap);
+      document.getElementById('resetAppScriptUrlBtn').addEventListener('click', window.forceResetAppScriptUrl);
+    }
+  });
+})();
+</script>
+
 </body>
 </html>

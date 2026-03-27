@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Industrial Excel PRO V30.3</title>
+  <title>Dashboard Industrial Excel PRO V34 Estable</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -180,7 +180,7 @@
         <h3>Hoja y estilo general</h3>
         <div class="row4">
           <div class="field"><label>Hoja a leer</label><select id="sheetSelect"></select></div>
-          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V30.3"></div>
+          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V34 Estable"></div>
           <div class="field"><label>Meta semanal (línea roja)</label><input id="weeklyTargetLine" type="number" value="700000"></div>
           <div class="field"><label>Escala fuente</label><input id="fontScale" type="number" min="0.70" max="1.20" step="0.02" value="0.92"></div>
           <div class="field"><label>Color fondo</label><input id="bgColor" type="color" value="#07131f"></div>
@@ -204,16 +204,6 @@
         <div class="field"><label>URL publicada</label><input id="googleSheetUrl" placeholder="Pegá acá la URL pubhtml o CSV"></div>
         <div class="field"><label>URL Apps Script</label><input id="appScriptUrl" placeholder="Pegá acá la URL /exec del Apps Script"></div>
         <div class="small">Acepta el link publicado tipo <b>pubhtml</b> y lo convierte automáticamente a CSV. Se leen la fila 1 como encabezados y la fila 2 como valores, manteniendo tus celdas A2, B2, C2, etc. La URL Apps Script te permite cambiar backend sin tocar el código HTML.</div>
-      </div>
-
-      <div class="cfg-card">
-        <h3>Criterios de rendimiento P2</h3>
-        <div class="row3">
-          <div class="field"><label>Rend. OK mínimo</label><input id="perfOkMin" type="number" step="0.1"></div>
-          <div class="field"><label>Rend. OK máximo</label><input id="perfOkMax" type="number" step="0.1"></div>
-          <div class="field"><label>Rend. crítico mínimo</label><input id="perfCritMin" type="number" step="0.1"></div>
-        </div>
-        <div class="small">Entre OK mínimo y OK máximo = <b>Óptimo</b>. Menor a crítico mínimo = <b>Crítico</b>. Entre ambos valores = <b>Atención</b>.</div>
       </div>
 
       <div class="cfg-card">
@@ -267,7 +257,7 @@
         </div>
       </div>
 
-      <div id="configMsg" class="config-msg"></div><div class="row2"><button class="btn green" id="saveCfg">Guardar configuración</button><button class="btn secondary" id="resetCfg">Restablecer</button></div>
+      <div class="row2"><button class="btn green" id="saveCfg">Guardar configuración</button><button class="btn secondary" id="resetCfg">Restablecer</button></div>
     </div>
   </aside>
 
@@ -327,8 +317,8 @@ const DEFAULT_MAPPING={
   sem3:{label:'Producción semana 3',title:'Semana 3',cell:'P2',manual:'',note:'Acumulado',fmt:'num'},
   sem4:{label:'Producción semana 4',title:'Semana 4',cell:'Q2',manual:'',note:'Acumulado',fmt:'num'}
 };
-const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V30.3',exportBrandText:'LAHARRAGUE CHODORGE',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',appScriptUrl:'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec',perfOkMin:-1,perfOkMax:1,perfCritMin:-1.6,mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
-function getWebAppUrl(){ return String((cfg && cfg.appScriptUrl) || DEFAULT_CFG.appScriptUrl || '').trim(); }
+const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V34 Estable',exportBrandText:'LAHARRAGUE CHODORGE',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',appScriptUrl:FIXED_APP_SCRIPT_URL,mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
+function getWebAppUrl(){ return FIXED_APP_SCRIPT_URL; }
 
 function jsonpRequest(params){
   return new Promise((resolve, reject) => {
@@ -378,72 +368,7 @@ function jsonpRequest(params){
   });
 }
 
-function buildConfigPayload(){
-  return {
-    dashTitle: cfg.dashTitle,
-    weeklyTargetLine: cfg.weeklyTargetLine,
-    exportBrandText: cfg.exportBrandText,
-    bgColor: cfg.bgColor,
-    panelColor: cfg.panelColor,
-    textColor: cfg.textColor,
-    kpiH: cfg.kpiH,
-    fontScale: cfg.fontScale,
-    selectedSheet: cfg.selectedSheet,
-    useGoogleSheet: cfg.useGoogleSheet,
-    googleAutoLoad: cfg.googleAutoLoad,
-    googleSheetUrl: cfg.googleSheetUrl,
-    appScriptUrl: cfg.appScriptUrl,
-    perfOkMin: cfg.perfOkMin,
-    perfOkMax: cfg.perfOkMax,
-    perfCritMin: cfg.perfCritMin,
-    titles: cfg.titles,
-    weekLabels: cfg.weekLabels,
-    weekLabelsAuto: cfg.weekLabelsAuto,
-    weekLabelStartCell: cfg.weekLabelStartCell,
-    mapping: cfg.mapping,
-    lastEditedCell: cfg.lastEditedCell
-  };
-}
-function mergeRemoteConfig(remote){
-  if(!remote || typeof remote !== 'object') return;
-  cfg = normalizeCriticalMappings({
-    ...deep(DEFAULT_CFG),
-    ...cfg,
-    ...remote,
-    titles:{...DEFAULT_TITLES,...(cfg.titles||{}),...(remote.titles||{})},
-    weekLabels:[...((remote.weekLabels && remote.weekLabels.length)? remote.weekLabels : (cfg.weekLabels||DEFAULT_WEEK_LABELS))],
-    mapping:{...deep(DEFAULT_MAPPING),...(cfg.mapping||{}),...(remote.mapping||{})}
-  });
-  saveCfgLS();
-}
-async function loadConfigFromBackend(){
-  if(!currentUser) return false;
-  try{
-    const data = await jsonpRequest({action:'getConfig', user: currentUser.username, pass: currentUser.password || ''});
-    if(data && data.status==='ok' && data.config){
-      mergeRemoteConfig(data.config);
-      renderConfig();
-      renderDashboard();
-      return true;
-    }
-    return false;
-  }catch(err){
-    console.error('Error leyendo Config desde Apps Script:', err);
-    return false;
-  }
-}
-async function saveConfigToBackend(){
-  if(!currentUser || currentUser.role!=='admin'){
-    return {status:'error', message:'Solo un administrador puede guardar configuración.'};
-  }
-  return await jsonpRequest({
-    action:'saveConfig',
-    user: currentUser.username,
-    pass: currentUser.password || '',
-    config: JSON.stringify(buildConfigPayload())
-  });
-}
-
+try{ const raw=localStorage.getItem('dashboard_excel_pro_v30')||localStorage.getItem('dashboard_excel_pro_v29')||localStorage.getItem('dashboard_excel_pro_v27'); if(raw){ const tmp=JSON.parse(raw); if(tmp && tmp.appScriptUrl && tmp.appScriptUrl!==FIXED_APP_SCRIPT_URL){ tmp.appScriptUrl=FIXED_APP_SCRIPT_URL; localStorage.setItem('dashboard_excel_pro_v34', JSON.stringify(tmp)); } } }catch(e){ console.warn('No se pudo normalizar URL Apps Script', e); }
 let cfg=loadCfg(), workbook=null, weekChart=null, currentUser=null;
 let lastRendered=loadRendered();
 const $=id=>document.getElementById(id);
@@ -462,8 +387,8 @@ function normalizeCriticalMappings(target){
   if(up(target.mapping.actualSem.manual)==='' && up(target.mapping.actualSem.cell)!=='S2') target.mapping.actualSem.cell='S2';
   return target;
 }
-function loadCfg(){try{const raw=localStorage.getItem('dashboard_excel_pro_v30')||localStorage.getItem('dashboard_excel_pro_v29')||localStorage.getItem('dashboard_excel_pro_v27')||localStorage.getItem('dashboard_excel_pro_v26')||'null';const s=JSON.parse(raw);if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
-function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v30',JSON.stringify(cfg)); localStorage.setItem('dashboard_excel_pro_v29',JSON.stringify(cfg))}
+function loadCfg(){try{const raw=localStorage.getItem('dashboard_excel_pro_v34')||localStorage.getItem('dashboard_excel_pro_v30')||localStorage.getItem('dashboard_excel_pro_v29')||localStorage.getItem('dashboard_excel_pro_v27')||localStorage.getItem('dashboard_excel_pro_v26')||'null';const s=JSON.parse(raw);if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,appScriptUrl:FIXED_APP_SCRIPT_URL,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
+function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v34',JSON.stringify(cfg)); localStorage.setItem('dashboard_excel_pro_v30',JSON.stringify(cfg)); localStorage.setItem('dashboard_excel_pro_v29',JSON.stringify(cfg))}
 function loadSession(){try{return JSON.parse(sessionStorage.getItem('dashboard_session_v30')||sessionStorage.getItem('dashboard_session_v29')||sessionStorage.getItem('dashboard_session_v27')||'null')}catch(e){return null}}
 function saveSession(){if(currentUser)sessionStorage.setItem('dashboard_session_v30',JSON.stringify(currentUser))}
 function clearSession(){sessionStorage.removeItem('dashboard_session_v30');sessionStorage.removeItem('dashboard_session_v29');sessionStorage.removeItem('dashboard_session_v27')}
@@ -592,7 +517,7 @@ function getWeekTitles(){
 function weekLabelPreviewText(){ return getWeekTitles().join(' | '); }
 function numMetric(key){const m=cfg.mapping[key]; const raw=readMetric(key); return m&&m.fmt==='pct' ? normalizePercent(raw) : normalizeNumber(raw)}
 function displayMetric(key){const m=cfg.mapping[key]; if(!m) return ''; const raw=readMetric(key); if(m.fmt==='date')return formatDate(raw); if(m.fmt==='pct')return formatPct(normalizePercent(raw),m.dec??1); return formatNum(normalizeNumber(raw),m.dec??0)}
-function stateInfo(v){const r=normalizePercent(v);const okMin=Number(cfg.perfOkMin ?? DEFAULT_CFG.perfOkMin);const okMax=Number(cfg.perfOkMax ?? DEFAULT_CFG.perfOkMax);const critMin=Number(cfg.perfCritMin ?? DEFAULT_CFG.perfCritMin);if(r < critMin)return {name:'Crítico',cls:'red',text:`El rendimiento es menor que ${fmtSigned(critMin)} y requiere revisión.`};if(r >= okMin && r <= okMax)return {name:'Óptimo',cls:'green',text:`El rendimiento está entre ${fmtSigned(okMin)} y ${fmtSigned(okMax)} y se considera correcto.`};return {name:'Atención',cls:'yellow',text:`El rendimiento está fuera del rango óptimo pero todavía no llegó al nivel crítico (${fmtSigned(critMin)}).`};};if(r>=0)return {name:'Óptimo',cls:'green',text:'El rendimiento está bien y no requiere intervención.'};return {name:'Atención',cls:'yellow',text:'El rendimiento está entre -1 y 0. Conviene seguirlo.'}}
+function stateInfo(v){const r=normalizePercent(v);if(r<-1)return {name:'Crítico',cls:'red',text:'El rendimiento es menor que -1 y requiere revisión.'};if(r>=0)return {name:'Óptimo',cls:'green',text:'El rendimiento está bien y no requiere intervención.'};return {name:'Atención',cls:'yellow',text:'El rendimiento está entre -1 y 0. Conviene seguirlo.'}}
 function renderTitles(){Object.keys(cfg.titles).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=cfg.titles[id]})}
 function esc(s){return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
 function renderUserChip(){ $('userChip').textContent = currentUser ? `${currentUser.username} · ${currentUser.role}` : 'No autenticado'; }
@@ -661,7 +586,7 @@ function openAccount(){
   $('accountBox').style.display='flex';
 }
 function closeAccount(){ $('accountBackdrop').classList.remove('open'); $('accountBox').style.display='none'; }
-function openCfg(){ if(!currentUser || currentUser.role!=='admin'){ alert('Solo el usuario administrador puede entrar a configuración.'); return; } $('cfgBackdrop').classList.add('open'); $('cfgPanel').classList.add('open'); loadConfigFromBackend().finally(()=>refreshUsersFromBackend()); }
+function openCfg(){ if(!currentUser || currentUser.role!=='admin'){ alert('Solo el usuario administrador puede entrar a configuración.'); return; } $('cfgBackdrop').classList.add('open'); $('cfgPanel').classList.add('open'); refreshUsersFromBackend(); }
 function closeCfg(){ $('cfgBackdrop').classList.remove('open'); $('cfgPanel').classList.remove('open'); }
 function renderUsers(){
   const box=$('usersContainer');
@@ -699,7 +624,7 @@ async function refreshUsersFromBackend(){
   if(!currentUser || currentUser.role!=='admin') return;
   if(msg) msg.textContent='Cargando usuarios desde Apps Script...';
   try{
-    const data = await jsonpRequest({action:'listUsers', user: currentUser.username, pass: currentUser.password || ''});
+    const data = await jsonpRequest({action:'listUsers'});
     if(data && data.status==='ok' && Array.isArray(data.users)){
       window.userAdminRows = data.users.map(u=>({
         username:String(u.username||''),
@@ -733,7 +658,7 @@ function collectUsersFromPanel(){
   })).filter(u=>u.username);
 }
 function renderConfig(){
-  $('dashTitle').value=cfg.dashTitle; $('weeklyTargetLine').value=cfg.weeklyTargetLine; $('exportBrandText').value=cfg.exportBrandText||'LAHARRAGUE CHODORGE'; $('bgColor').value=cfg.bgColor; $('panelColor').value=cfg.panelColor; $('textColor').value=cfg.textColor; $('kpiH').value=cfg.kpiH; $('fontScale').value=cfg.fontScale; $('useGoogleSheet').value=String(!!cfg.useGoogleSheet); $('googleAutoLoad').value=String(!!cfg.googleAutoLoad); $('googleSheetUrl').value=cfg.googleSheetUrl || ''; $('appScriptUrl').value=cfg.appScriptUrl || DEFAULT_CFG.appScriptUrl; $('perfOkMin').value=cfg.perfOkMin ?? DEFAULT_CFG.perfOkMin; $('perfOkMax').value=cfg.perfOkMax ?? DEFAULT_CFG.perfOkMax; $('perfCritMin').value=cfg.perfCritMin ?? DEFAULT_CFG.perfCritMin; if($('configMsg')){$('configMsg').className='config-msg'; $('configMsg').textContent='';}
+  $('dashTitle').value=cfg.dashTitle; $('weeklyTargetLine').value=cfg.weeklyTargetLine; $('exportBrandText').value=cfg.exportBrandText||'LAHARRAGUE CHODORGE'; $('bgColor').value=cfg.bgColor; $('panelColor').value=cfg.panelColor; $('textColor').value=cfg.textColor; $('kpiH').value=cfg.kpiH; $('fontScale').value=cfg.fontScale; $('useGoogleSheet').value=String(!!cfg.useGoogleSheet); $('googleAutoLoad').value=String(!!cfg.googleAutoLoad); $('googleSheetUrl').value=cfg.googleSheetUrl || ''; $('appScriptUrl').value=FIXED_APP_SCRIPT_URL; $('appScriptUrl').setAttribute('readonly','readonly'); $('appScriptUrl').setAttribute('title','URL fija en V34 para máxima estabilidad');
   Object.keys(DEFAULT_TITLES).forEach(k=>{const el=document.getElementById(k+'_in'); if(el) el.value=cfg.titles[k]||DEFAULT_TITLES[k]});
   $('weekLabel1').value=cfg.weekLabels[0]||'Semana 1'; $('weekLabel2').value=cfg.weekLabels[1]||'Semana 2'; $('weekLabel3').value=cfg.weekLabels[2]||'Semana 3'; $('weekLabel4').value=cfg.weekLabels[3]||'Semana 4'; $('weekLabelsAuto').value=String(!!cfg.weekLabelsAuto); $('weekLabelStartCell').value=cfg.weekLabelStartCell||''; $('weekLabelPreview').value=weekLabelPreviewText();
   $('sheetSelect').innerHTML=''; if(workbook){workbook.SheetNames.forEach(n=>{const op=document.createElement('option'); op.value=n; op.textContent=n; if(n===cfg.selectedSheet) op.selected=true; $('sheetSelect').appendChild(op);});} else {const op=document.createElement('option'); op.value=''; op.textContent='Sin libro cargado'; $('sheetSelect').appendChild(op);}
@@ -767,9 +692,6 @@ function applyConfigFromPanel(){
   cfg.googleAutoLoad=$('googleAutoLoad').value==='true';
   cfg.googleSheetUrl=$('googleSheetUrl').value.trim();
   cfg.appScriptUrl=$('appScriptUrl').value.trim() || DEFAULT_CFG.appScriptUrl;
-  cfg.perfOkMin=Number($('perfOkMin').value || DEFAULT_CFG.perfOkMin);
-  cfg.perfOkMax=Number($('perfOkMax').value || DEFAULT_CFG.perfOkMax);
-  cfg.perfCritMin=Number($('perfCritMin').value || DEFAULT_CFG.perfCritMin);
   Object.keys(DEFAULT_TITLES).forEach(k=>{const el=document.getElementById(k+'_in'); if(el) cfg.titles[k]=el.value||DEFAULT_TITLES[k]});
   cfg.weekLabels=[$('weekLabel1').value||'Semana 1',$('weekLabel2').value||'Semana 2',$('weekLabel3').value||'Semana 3',$('weekLabel4').value||'Semana 4'];
   cfg.weekLabelsAuto=$('weekLabelsAuto').value==='true';
@@ -1007,9 +929,9 @@ function renderFromStored(){
 }
 
 $('openCfg').onclick=()=>openCfg(); $('closeCfg').onclick=()=>closeCfg(); $('cfgBackdrop').onclick=()=>closeCfg();
-$('saveCfg').onclick=async ()=>{ const msg=$('configMsg'); try{ if(msg){msg.className='config-msg'; msg.textContent='';} applyConfigFromPanel(); const saved = await saveConfigToBackend(); if(!saved || saved.status!=='ok'){ throw new Error((saved&&saved.message)||'No se pudo guardar la configuración en Apps Script.'); } let syncWarn=''; if(cfg.useGoogleSheet && cfg.googleAutoLoad){ const ok = await autoSyncGoogleOnAccess(false); if(!ok) syncWarn='Configuración guardada, pero no se pudo resincronizar Google en este momento.'; } renderDashboard(); if(msg){ msg.className='config-msg ' + (syncWarn ? 'warn' : 'ok'); msg.textContent = syncWarn || 'Configuración guardada correctamente.'; } setTimeout(()=>{ closeCfg(); if(msg){ msg.className='config-msg'; msg.textContent=''; } }, 1000); }catch(err){ console.error(err); if(msg){ msg.className='config-msg err'; msg.textContent=(err && err.message) ? err.message : 'No se pudo guardar la configuración.'; } } };
+$('saveCfg').onclick=async ()=>{ applyConfigFromPanel(); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ await autoSyncGoogleOnAccess(true); } renderDashboard(); closeCfg(); };
 $('addUserBtn').onclick=()=>{ if(!window.userAdminRows) window.userAdminRows=[]; window.userAdminRows.push({username:'',password:'',role:'visor',active:'SI',locked:false}); renderUsers(); };
-$('saveUsersBtn').onclick=async ()=>{ const users=collectUsersFromPanel(); if(!users.length){ $('usersMsg').textContent='No hay usuarios para guardar.'; return; } if(!currentUser || currentUser.role!=='admin'){ $('usersMsg').textContent='Solo un administrador puede guardar usuarios.'; return; } $('usersMsg').textContent='Guardando usuarios en Apps Script...'; try{ const data = await jsonpRequest({action:'saveUsers', user: currentUser.username, pass: currentUser.password || '', users: JSON.stringify(users)}); if(data && data.status==='ok'){ $('usersMsg').textContent='Usuarios guardados correctamente.'; await refreshUsersFromBackend(); } else { $('usersMsg').textContent=(data&&data.message)||'No se pudieron guardar los usuarios.'; } }catch(err){ console.error(err); $('usersMsg').textContent='Error al guardar usuarios. Revisá Apps Script.'; } };
+$('saveUsersBtn').onclick=async ()=>{ const users=collectUsersFromPanel(); if(!users.length){ $('usersMsg').textContent='No hay usuarios para guardar.'; return; } $('usersMsg').textContent='Guardando usuarios en Apps Script...'; try{ const payload = btoa(unescape(encodeURIComponent(JSON.stringify(users)))); const data = await jsonpRequest({action:'saveUsers', payload}); if(data && data.status==='ok'){ $('usersMsg').textContent='Usuarios guardados correctamente.'; await refreshUsersFromBackend(); } else { $('usersMsg').textContent=(data&&data.message)||'No se pudieron guardar los usuarios.'; } }catch(err){ console.error(err); $('usersMsg').textContent='Error al guardar usuarios. Revisá Apps Script V29.'; } };
 $('restoreMappingBtn').onclick=()=>{
   if(!confirm('¿Restaurar el mapeo recomendado? Esto reemplaza solo las celdas, manuales y notas del bloque de mapeo.')) return;
   cfg.mapping = deep(DEFAULT_MAPPING);
@@ -1101,9 +1023,8 @@ $('loginBtn').onclick=async ()=>{
       return;
     }
     const role = String(data.role||'visor').toLowerCase()==='viewer' ? 'visor' : String(data.role||'visor').toLowerCase();
-    currentUser={username:String(data.user||u).trim(),role,password:p};
+    currentUser={username:String(data.user||u).trim(),role};
     saveSession();
-    await loadConfigFromBackend();
     unlockApp(currentUser.username,currentUser.role);
     bumpSessionTimer();
     await autoSyncGoogleOnAccess(true);
@@ -1153,7 +1074,7 @@ currentUser=loadSession();
 renderUserChip();
 updateRoleUi();
 setTimeout(()=>{ autoSyncGoogleOnAccess(false); }, 150);
-if(currentUser){ loadConfigFromBackend().finally(()=>{ unlockApp(currentUser.username,currentUser.role); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ setTimeout(()=>autoSyncGoogleOnAccess(false), 400); } }); } else { lockApp('Ingrese usuario y contraseña para visualizar el dashboard'); }
+if(currentUser){ unlockApp(currentUser.username,currentUser.role); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ setTimeout(()=>autoSyncGoogleOnAccess(false), 400); } } else { lockApp('Ingrese usuario y contraseña para visualizar el dashboard'); }
 </script>
 </body>
 </html>

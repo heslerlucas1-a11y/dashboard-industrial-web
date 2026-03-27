@@ -592,7 +592,7 @@ function getWeekTitles(){
 function weekLabelPreviewText(){ return getWeekTitles().join(' | '); }
 function numMetric(key){const m=cfg.mapping[key]; const raw=readMetric(key); return m&&m.fmt==='pct' ? normalizePercent(raw) : normalizeNumber(raw)}
 function displayMetric(key){const m=cfg.mapping[key]; if(!m) return ''; const raw=readMetric(key); if(m.fmt==='date')return formatDate(raw); if(m.fmt==='pct')return formatPct(normalizePercent(raw),m.dec??1); return formatNum(normalizeNumber(raw),m.dec??0)}
-function stateInfo(v){const r=normalizePercent(v);const okMin=Number(cfg.perfOkMin ?? DEFAULT_CFG.perfOkMin);const okMax=Number(cfg.perfOkMax ?? DEFAULT_CFG.perfOkMax);const critMin=Number(cfg.perfCritMin ?? DEFAULT_CFG.perfCritMin);if(r < critMin)return {name:'Crítico',cls:'red',text:`El rendimiento es menor que ${fmtSigned(critMin)} y requiere revisión.`};if(r >= okMin && r <= okMax)return {name:'Óptimo',cls:'green',text:`El rendimiento está entre ${fmtSigned(okMin)} y ${fmtSigned(okMax)} y se considera correcto.`};return {name:'Atención',cls:'yellow',text:`El rendimiento está fuera del rango óptimo pero todavía no llegó al nivel crítico (${fmtSigned(critMin)}).`};}
+function stateInfo(v){const r=normalizePercent(v);const okMin=Number(cfg.perfOkMin ?? DEFAULT_CFG.perfOkMin);const okMax=Number(cfg.perfOkMax ?? DEFAULT_CFG.perfOkMax);const critMin=Number(cfg.perfCritMin ?? DEFAULT_CFG.perfCritMin);if(r < critMin)return {name:'Crítico',cls:'red',text:`El rendimiento es menor que ${fmtSigned(critMin)} y requiere revisión.`};if(r >= okMin && r <= okMax)return {name:'Óptimo',cls:'green',text:`El rendimiento está entre ${fmtSigned(okMin)} y ${fmtSigned(okMax)} y se considera correcto.`};return {name:'Atención',cls:'yellow',text:`El rendimiento está fuera del rango óptimo pero todavía no llegó al nivel crítico (${fmtSigned(critMin)}).`};};if(r>=0)return {name:'Óptimo',cls:'green',text:'El rendimiento está bien y no requiere intervención.'};return {name:'Atención',cls:'yellow',text:'El rendimiento está entre -1 y 0. Conviene seguirlo.'}}
 function renderTitles(){Object.keys(cfg.titles).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=cfg.titles[id]})}
 function esc(s){return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
 function renderUserChip(){ $('userChip').textContent = currentUser ? `${currentUser.username} · ${currentUser.role}` : 'No autenticado'; }
@@ -1103,22 +1103,10 @@ $('loginBtn').onclick=async ()=>{
     const role = String(data.role||'visor').toLowerCase()==='viewer' ? 'visor' : String(data.role||'visor').toLowerCase();
     currentUser={username:String(data.user||u).trim(),role,password:p};
     saveSession();
-
-    // Si Config todavía no está lista en Apps Script, igual permitimos entrar
-    try{
-      await loadConfigFromBackend();
-    }catch(cfgErr){
-      console.warn('No se pudo leer Config desde Apps Script. Se usarán valores locales/default.', cfgErr);
-    }
-
+    await loadConfigFromBackend();
     unlockApp(currentUser.username,currentUser.role);
     bumpSessionTimer();
-
-    try{
-      await autoSyncGoogleOnAccess(true);
-    }catch(syncErr){
-      console.warn('No se pudo sincronizar al ingresar.', syncErr);
-    }
+    await autoSyncGoogleOnAccess(true);
   }catch(err){
     console.error(err);
     $('loginMsg').textContent='No se pudo validar acceso con Apps Script.';
@@ -1167,40 +1155,5 @@ updateRoleUi();
 setTimeout(()=>{ autoSyncGoogleOnAccess(false); }, 150);
 if(currentUser){ loadConfigFromBackend().finally(()=>{ unlockApp(currentUser.username,currentUser.role); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ setTimeout(()=>autoSyncGoogleOnAccess(false), 400); } }); } else { lockApp('Ingrese usuario y contraseña para visualizar el dashboard'); }
 </script>
-
-<script>
-(function(){
-  const FALLBACK_APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec";
-  try {
-    if (!localStorage.getItem('appScriptUrl')) {
-      localStorage.setItem('appScriptUrl', FALLBACK_APP_SCRIPT_URL);
-    }
-  } catch(e) {}
-
-  window.forceResetAppScriptUrl = function(){
-    try {
-      localStorage.setItem('appScriptUrl', FALLBACK_APP_SCRIPT_URL);
-      sessionStorage.clear();
-      alert('URL de Apps Script restablecida. Ahora hacé Ctrl + F5 y volvé a ingresar.');
-    } catch(e) {
-      console.error(e);
-      alert('No se pudo restablecer la URL.');
-    }
-  };
-
-  document.addEventListener('DOMContentLoaded', function(){
-    const loginBox = document.getElementById('loginBox');
-    if(loginBox && !document.getElementById('resetAppScriptUrlBtn')) {
-      const wrap = document.createElement('div');
-      wrap.style.marginTop = '10px';
-      wrap.style.textAlign = 'center';
-      wrap.innerHTML = '<button id="resetAppScriptUrlBtn" type="button" style="background:#44506a;border:none;color:#fff;padding:8px 14px;border-radius:10px;cursor:pointer;">Restablecer URL Apps Script</button>';
-      loginBox.appendChild(wrap);
-      document.getElementById('resetAppScriptUrlBtn').addEventListener('click', window.forceResetAppScriptUrl);
-    }
-  });
-})();
-</script>
-
 </body>
 </html>

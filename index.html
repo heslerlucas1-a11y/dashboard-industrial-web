@@ -1103,10 +1103,22 @@ $('loginBtn').onclick=async ()=>{
     const role = String(data.role||'visor').toLowerCase()==='viewer' ? 'visor' : String(data.role||'visor').toLowerCase();
     currentUser={username:String(data.user||u).trim(),role,password:p};
     saveSession();
-    await loadConfigFromBackend();
+
+    // Si Config todavía no está lista en Apps Script, igual permitimos entrar
+    try{
+      await loadConfigFromBackend();
+    }catch(cfgErr){
+      console.warn('No se pudo leer Config desde Apps Script. Se usarán valores locales/default.', cfgErr);
+    }
+
     unlockApp(currentUser.username,currentUser.role);
     bumpSessionTimer();
-    await autoSyncGoogleOnAccess(true);
+
+    try{
+      await autoSyncGoogleOnAccess(true);
+    }catch(syncErr){
+      console.warn('No se pudo sincronizar al ingresar.', syncErr);
+    }
   }catch(err){
     console.error(err);
     $('loginMsg').textContent='No se pudo validar acceso con Apps Script.';

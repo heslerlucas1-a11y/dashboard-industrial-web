@@ -318,6 +318,15 @@ const DEFAULT_MAPPING={
   sem4:{label:'Producción semana 4',title:'Semana 4',cell:'Q2',manual:'',note:'Acumulado',fmt:'num'}
 };
 const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V30 Estable',exportBrandText:'LAHARRAGUE CHODORGE',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',appScriptUrl:'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec',mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
+function applyRuntimeConfigFallbacks(target){
+  if(!target || typeof target!=='object') return normalizeCriticalMappings(deep(DEFAULT_CFG));
+  if(!String(target.googleSheetUrl||'').trim()) target.googleSheetUrl = DEFAULT_CFG.googleSheetUrl;
+  if(!String(target.appScriptUrl||'').trim()) target.appScriptUrl = DEFAULT_CFG.appScriptUrl;
+  if(!Array.isArray(target.weekLabels) || !target.weekLabels.length) target.weekLabels = [...DEFAULT_WEEK_LABELS];
+  if(!target.titles || typeof target.titles!=='object') target.titles = JSON.parse(JSON.stringify(DEFAULT_TITLES));
+  if(!target.mapping || typeof target.mapping!=='object') target.mapping = JSON.parse(JSON.stringify(DEFAULT_MAPPING));
+  return normalizeCriticalMappings(target);
+}
 function getWebAppUrl(){ return String((cfg && cfg.appScriptUrl) || DEFAULT_CFG.appScriptUrl || '').trim(); }
 
 function jsonpRequest(params){
@@ -386,7 +395,23 @@ function normalizeCriticalMappings(target){
   if(up(target.mapping.actualSem.manual)==='' && up(target.mapping.actualSem.cell)!=='S2') target.mapping.actualSem.cell='S2';
   return target;
 }
-function loadCfg(){try{const raw=localStorage.getItem('dashboard_excel_pro_v30')||localStorage.getItem('dashboard_excel_pro_v29')||localStorage.getItem('dashboard_excel_pro_v27')||localStorage.getItem('dashboard_excel_pro_v26')||'null';const s=JSON.parse(raw);if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
+function loadCfg(){
+  try{
+    const raw=localStorage.getItem('dashboard_excel_pro_v30')||localStorage.getItem('dashboard_excel_pro_v29')||localStorage.getItem('dashboard_excel_pro_v27')||localStorage.getItem('dashboard_excel_pro_v26')||'null';
+    const s=JSON.parse(raw);
+    if(!s) return applyRuntimeConfigFallbacks(deep(DEFAULT_CFG));
+    const merged={
+      ...deep(DEFAULT_CFG),
+      ...s,
+      titles:{...DEFAULT_TITLES,...(s.titles||{})},
+      weekLabels:[...(Array.isArray(s.weekLabels)&&s.weekLabels.length?s.weekLabels:DEFAULT_WEEK_LABELS)],
+      mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}
+    };
+    return applyRuntimeConfigFallbacks(merged);
+  }catch(e){
+    return applyRuntimeConfigFallbacks(deep(DEFAULT_CFG));
+  }
+}
 function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v30',JSON.stringify(cfg)); localStorage.setItem('dashboard_excel_pro_v29',JSON.stringify(cfg))}
 function loadSession(){try{return JSON.parse(sessionStorage.getItem('dashboard_session_v30')||sessionStorage.getItem('dashboard_session_v29')||sessionStorage.getItem('dashboard_session_v27')||'null')}catch(e){return null}}
 function saveSession(){if(currentUser)sessionStorage.setItem('dashboard_session_v30',JSON.stringify(currentUser))}
@@ -462,6 +487,7 @@ async function loadGoogleSheetData(force=false){
   }catch(err){
     console.error(err);
     $('googleInfo').textContent='Error Google Sheets';
+    if(err && err.message) console.warn('Detalle Google Sheets:', err.message);
     if(force) alert('No se pudo leer Google Sheets.');
     return false;
   }
@@ -537,6 +563,36 @@ async function autoSyncGoogleOnAccess(force=false){
   }catch(err){
     console.error(err);
     $('googleInfo').textContent='Error Google Sheets';
+    return false;
+  }
+}
+
+async function loadConfigFromBackend(forceMessage=false){
+  if(!currentUser) return false;
+  try{
+    const data = await jsonpRequest({action:'getConfig', user: currentUser.username, pass: currentUser.password || ''});
+    if(data && data.status==='ok' && data.config && typeof data.config==='object'){
+      const backendCfg = data.config || {};
+      cfg = applyRuntimeConfigFallbacks({
+        ...deep(DEFAULT_CFG),
+        ...cfg,
+        ...backendCfg,
+        titles:{...DEFAULT_TITLES,...(cfg.titles||{}),...(backendCfg.titles||{})},
+        weekLabels:[...((Array.isArray(backendCfg.weekLabels) && backendCfg.weekLabels.length) ? backendCfg.weekLabels : (cfg.weekLabels||DEFAULT_WEEK_LABELS))],
+        mapping:{...deep(DEFAULT_MAPPING),...(cfg.mapping||{}),...(backendCfg.mapping||{})}
+      });
+      saveCfgLS();
+      setVars();
+      renderTitles();
+      renderConfig();
+      if(forceMessage) $('googleInfo').textContent='Configuración cargada desde Apps Script';
+      return true;
+    }
+    if(forceMessage && data && data.message) $('googleInfo').textContent=data.message;
+    return false;
+  }catch(err){
+    console.error(err);
+    if(forceMessage) $('googleInfo').textContent='No se pudo leer Config desde Apps Script';
     return false;
   }
 }
@@ -1024,12 +1080,13 @@ $('loginBtn').onclick=async ()=>{
     const role = String(data.role||'visor').toLowerCase()==='viewer' ? 'visor' : String(data.role||'visor').toLowerCase();
     currentUser={username:String(data.user||u).trim(),role,password:p};
     saveSession();
+    await loadConfigFromBackend(true);
     unlockApp(currentUser.username,currentUser.role);
     bumpSessionTimer();
     await autoSyncGoogleOnAccess(true);
   }catch(err){
     console.error(err);
-    $('loginMsg').textContent='No se pudo validar acceso con Apps Script.';
+    $('loginMsg').textContent='No se pudo validar acceso con Apps Script. Revisá URL /exec o permisos de despliegue.';
   }
 };
 $('loginUser').addEventListener('keydown',e=>{ if(e.key==='Enter') $('loginBtn').click(); });
@@ -1073,7 +1130,13 @@ currentUser=loadSession();
 renderUserChip();
 updateRoleUi();
 setTimeout(()=>{ autoSyncGoogleOnAccess(false); }, 150);
-if(currentUser){ unlockApp(currentUser.username,currentUser.role); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ setTimeout(()=>autoSyncGoogleOnAccess(false), 400); } } else { lockApp('Ingrese usuario y contraseña para visualizar el dashboard'); }
+if(currentUser){
+  unlockApp(currentUser.username,currentUser.role);
+  setTimeout(async ()=>{
+    await loadConfigFromBackend(false);
+    if(cfg.useGoogleSheet && cfg.googleAutoLoad){ await autoSyncGoogleOnAccess(false); }
+  }, 400);
+} else { lockApp('Ingrese usuario y contraseña para visualizar el dashboard'); }
 </script>
 </body>
 </html>

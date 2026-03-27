@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Industrial Excel PRO V34 Estable</title>
+  <title>Dashboard Industrial Excel PRO V30 Estable</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -180,7 +180,7 @@
         <h3>Hoja y estilo general</h3>
         <div class="row4">
           <div class="field"><label>Hoja a leer</label><select id="sheetSelect"></select></div>
-          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V34 Estable"></div>
+          <div class="field"><label>Título ventana</label><input id="dashTitle" value="Dashboard Industrial Excel PRO V30 Estable"></div>
           <div class="field"><label>Meta semanal (línea roja)</label><input id="weeklyTargetLine" type="number" value="700000"></div>
           <div class="field"><label>Escala fuente</label><input id="fontScale" type="number" min="0.70" max="1.20" step="0.02" value="0.92"></div>
           <div class="field"><label>Color fondo</label><input id="bgColor" type="color" value="#07131f"></div>
@@ -317,8 +317,8 @@ const DEFAULT_MAPPING={
   sem3:{label:'Producción semana 3',title:'Semana 3',cell:'P2',manual:'',note:'Acumulado',fmt:'num'},
   sem4:{label:'Producción semana 4',title:'Semana 4',cell:'Q2',manual:'',note:'Acumulado',fmt:'num'}
 };
-const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V34 Estable',exportBrandText:'LAHARRAGUE CHODORGE',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',appScriptUrl:FIXED_APP_SCRIPT_URL,mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
-function getWebAppUrl(){ return FIXED_APP_SCRIPT_URL; }
+const DEFAULT_CFG={dashTitle:'Dashboard Industrial Excel PRO V30 Estable',exportBrandText:'LAHARRAGUE CHODORGE',selectedSheet:'',weeklyTargetLine:700000,bgColor:'#07131f',panelColor:'#0d2740',textColor:'#ecf6ff',kpiH:116,fontScale:.92,lastEditedCell:'sin cambios',titles:JSON.parse(JSON.stringify(DEFAULT_TITLES)),weekLabels:[...DEFAULT_WEEK_LABELS],weekLabelsAuto:true,weekLabelStartCell:'U2',useGoogleSheet:true,googleAutoLoad:true,googleSheetUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATKnC3Gc2QmQIp1oojeY-lTadFdVpaMEMX9SGKQ3sTDxoHMqUvmKOZAm2Q1Li2TO8sUgsg1TGcfEb/pub?output=csv',appScriptUrl:'https://script.google.com/macros/s/AKfycbwlPyp1n7rt5MwcaqW9e6kGvw99Y49PrGXEqtmsaLCztazI-rwHSBc44hefgGCGnGw/exec',mapping:JSON.parse(JSON.stringify(DEFAULT_MAPPING))};
+function getWebAppUrl(){ return String((cfg && cfg.appScriptUrl) || DEFAULT_CFG.appScriptUrl || '').trim(); }
 
 function jsonpRequest(params){
   return new Promise((resolve, reject) => {
@@ -368,7 +368,6 @@ function jsonpRequest(params){
   });
 }
 
-try{ const raw=localStorage.getItem('dashboard_excel_pro_v30')||localStorage.getItem('dashboard_excel_pro_v29')||localStorage.getItem('dashboard_excel_pro_v27'); if(raw){ const tmp=JSON.parse(raw); if(tmp && tmp.appScriptUrl && tmp.appScriptUrl!==FIXED_APP_SCRIPT_URL){ tmp.appScriptUrl=FIXED_APP_SCRIPT_URL; localStorage.setItem('dashboard_excel_pro_v34', JSON.stringify(tmp)); } } }catch(e){ console.warn('No se pudo normalizar URL Apps Script', e); }
 let cfg=loadCfg(), workbook=null, weekChart=null, currentUser=null;
 let lastRendered=loadRendered();
 const $=id=>document.getElementById(id);
@@ -387,8 +386,8 @@ function normalizeCriticalMappings(target){
   if(up(target.mapping.actualSem.manual)==='' && up(target.mapping.actualSem.cell)!=='S2') target.mapping.actualSem.cell='S2';
   return target;
 }
-function loadCfg(){try{const raw=localStorage.getItem('dashboard_excel_pro_v34')||localStorage.getItem('dashboard_excel_pro_v30')||localStorage.getItem('dashboard_excel_pro_v29')||localStorage.getItem('dashboard_excel_pro_v27')||localStorage.getItem('dashboard_excel_pro_v26')||'null';const s=JSON.parse(raw);if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,appScriptUrl:FIXED_APP_SCRIPT_URL,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
-function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v34',JSON.stringify(cfg)); localStorage.setItem('dashboard_excel_pro_v30',JSON.stringify(cfg)); localStorage.setItem('dashboard_excel_pro_v29',JSON.stringify(cfg))}
+function loadCfg(){try{const raw=localStorage.getItem('dashboard_excel_pro_v30')||localStorage.getItem('dashboard_excel_pro_v29')||localStorage.getItem('dashboard_excel_pro_v27')||localStorage.getItem('dashboard_excel_pro_v26')||'null';const s=JSON.parse(raw);if(!s)return normalizeCriticalMappings(deep(DEFAULT_CFG));const merged={...deep(DEFAULT_CFG),...s,titles:{...DEFAULT_TITLES,...(s.titles||{})},weekLabels:[...(s.weekLabels||DEFAULT_WEEK_LABELS)],mapping:{...deep(DEFAULT_MAPPING),...(s.mapping||{})}}; return normalizeCriticalMappings(merged)}catch(e){return normalizeCriticalMappings(deep(DEFAULT_CFG))}}
+function saveCfgLS(){localStorage.setItem('dashboard_excel_pro_v30',JSON.stringify(cfg)); localStorage.setItem('dashboard_excel_pro_v29',JSON.stringify(cfg))}
 function loadSession(){try{return JSON.parse(sessionStorage.getItem('dashboard_session_v30')||sessionStorage.getItem('dashboard_session_v29')||sessionStorage.getItem('dashboard_session_v27')||'null')}catch(e){return null}}
 function saveSession(){if(currentUser)sessionStorage.setItem('dashboard_session_v30',JSON.stringify(currentUser))}
 function clearSession(){sessionStorage.removeItem('dashboard_session_v30');sessionStorage.removeItem('dashboard_session_v29');sessionStorage.removeItem('dashboard_session_v27')}
@@ -624,7 +623,7 @@ async function refreshUsersFromBackend(){
   if(!currentUser || currentUser.role!=='admin') return;
   if(msg) msg.textContent='Cargando usuarios desde Apps Script...';
   try{
-    const data = await jsonpRequest({action:'listUsers'});
+    const data = await jsonpRequest({action:'listUsers', user: currentUser.username, pass: currentUser.password || ''});
     if(data && data.status==='ok' && Array.isArray(data.users)){
       window.userAdminRows = data.users.map(u=>({
         username:String(u.username||''),
@@ -658,7 +657,7 @@ function collectUsersFromPanel(){
   })).filter(u=>u.username);
 }
 function renderConfig(){
-  $('dashTitle').value=cfg.dashTitle; $('weeklyTargetLine').value=cfg.weeklyTargetLine; $('exportBrandText').value=cfg.exportBrandText||'LAHARRAGUE CHODORGE'; $('bgColor').value=cfg.bgColor; $('panelColor').value=cfg.panelColor; $('textColor').value=cfg.textColor; $('kpiH').value=cfg.kpiH; $('fontScale').value=cfg.fontScale; $('useGoogleSheet').value=String(!!cfg.useGoogleSheet); $('googleAutoLoad').value=String(!!cfg.googleAutoLoad); $('googleSheetUrl').value=cfg.googleSheetUrl || ''; $('appScriptUrl').value=FIXED_APP_SCRIPT_URL; $('appScriptUrl').setAttribute('readonly','readonly'); $('appScriptUrl').setAttribute('title','URL fija en V34 para máxima estabilidad');
+  $('dashTitle').value=cfg.dashTitle; $('weeklyTargetLine').value=cfg.weeklyTargetLine; $('exportBrandText').value=cfg.exportBrandText||'LAHARRAGUE CHODORGE'; $('bgColor').value=cfg.bgColor; $('panelColor').value=cfg.panelColor; $('textColor').value=cfg.textColor; $('kpiH').value=cfg.kpiH; $('fontScale').value=cfg.fontScale; $('useGoogleSheet').value=String(!!cfg.useGoogleSheet); $('googleAutoLoad').value=String(!!cfg.googleAutoLoad); $('googleSheetUrl').value=cfg.googleSheetUrl || ''; $('appScriptUrl').value=cfg.appScriptUrl || DEFAULT_CFG.appScriptUrl;
   Object.keys(DEFAULT_TITLES).forEach(k=>{const el=document.getElementById(k+'_in'); if(el) el.value=cfg.titles[k]||DEFAULT_TITLES[k]});
   $('weekLabel1').value=cfg.weekLabels[0]||'Semana 1'; $('weekLabel2').value=cfg.weekLabels[1]||'Semana 2'; $('weekLabel3').value=cfg.weekLabels[2]||'Semana 3'; $('weekLabel4').value=cfg.weekLabels[3]||'Semana 4'; $('weekLabelsAuto').value=String(!!cfg.weekLabelsAuto); $('weekLabelStartCell').value=cfg.weekLabelStartCell||''; $('weekLabelPreview').value=weekLabelPreviewText();
   $('sheetSelect').innerHTML=''; if(workbook){workbook.SheetNames.forEach(n=>{const op=document.createElement('option'); op.value=n; op.textContent=n; if(n===cfg.selectedSheet) op.selected=true; $('sheetSelect').appendChild(op);});} else {const op=document.createElement('option'); op.value=''; op.textContent='Sin libro cargado'; $('sheetSelect').appendChild(op);}
@@ -929,9 +928,9 @@ function renderFromStored(){
 }
 
 $('openCfg').onclick=()=>openCfg(); $('closeCfg').onclick=()=>closeCfg(); $('cfgBackdrop').onclick=()=>closeCfg();
-$('saveCfg').onclick=async ()=>{ applyConfigFromPanel(); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ await autoSyncGoogleOnAccess(true); } renderDashboard(); closeCfg(); };
+$('saveCfg').onclick=async ()=>{ try{ applyConfigFromPanel(); if(cfg.useGoogleSheet && cfg.googleAutoLoad){ await autoSyncGoogleOnAccess(true); } renderDashboard(); $('usersMsg').textContent=''; closeCfg(); setTimeout(()=>{ alert('Configuración guardada correctamente.'); }, 50); }catch(err){ console.error(err); alert('No se pudo guardar la configuración. Revisá la consola.'); } };
 $('addUserBtn').onclick=()=>{ if(!window.userAdminRows) window.userAdminRows=[]; window.userAdminRows.push({username:'',password:'',role:'visor',active:'SI',locked:false}); renderUsers(); };
-$('saveUsersBtn').onclick=async ()=>{ const users=collectUsersFromPanel(); if(!users.length){ $('usersMsg').textContent='No hay usuarios para guardar.'; return; } $('usersMsg').textContent='Guardando usuarios en Apps Script...'; try{ const payload = btoa(unescape(encodeURIComponent(JSON.stringify(users)))); const data = await jsonpRequest({action:'saveUsers', payload}); if(data && data.status==='ok'){ $('usersMsg').textContent='Usuarios guardados correctamente.'; await refreshUsersFromBackend(); } else { $('usersMsg').textContent=(data&&data.message)||'No se pudieron guardar los usuarios.'; } }catch(err){ console.error(err); $('usersMsg').textContent='Error al guardar usuarios. Revisá Apps Script V29.'; } };
+$('saveUsersBtn').onclick=async ()=>{ const users=collectUsersFromPanel(); if(!users.length){ $('usersMsg').textContent='No hay usuarios para guardar.'; return; } if(!currentUser || currentUser.role!=='admin'){ $('usersMsg').textContent='Solo un administrador puede guardar usuarios.'; return; } $('usersMsg').textContent='Guardando usuarios en Apps Script...'; try{ const data = await jsonpRequest({action:'saveUsers', user: currentUser.username, pass: currentUser.password || '', users: JSON.stringify(users)}); if(data && data.status==='ok'){ $('usersMsg').textContent='Usuarios guardados correctamente.'; await refreshUsersFromBackend(); } else { $('usersMsg').textContent=(data&&data.message)||'No se pudieron guardar los usuarios.'; } }catch(err){ console.error(err); $('usersMsg').textContent='Error al guardar usuarios. Revisá Apps Script.'; } };
 $('restoreMappingBtn').onclick=()=>{
   if(!confirm('¿Restaurar el mapeo recomendado? Esto reemplaza solo las celdas, manuales y notas del bloque de mapeo.')) return;
   cfg.mapping = deep(DEFAULT_MAPPING);
@@ -1023,7 +1022,7 @@ $('loginBtn').onclick=async ()=>{
       return;
     }
     const role = String(data.role||'visor').toLowerCase()==='viewer' ? 'visor' : String(data.role||'visor').toLowerCase();
-    currentUser={username:String(data.user||u).trim(),role};
+    currentUser={username:String(data.user||u).trim(),role,password:p};
     saveSession();
     unlockApp(currentUser.username,currentUser.role);
     bumpSessionTimer();
